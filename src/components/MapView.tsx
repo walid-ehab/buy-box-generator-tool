@@ -19,7 +19,7 @@ interface Props {
   /** every listing in the market — used for revenue tiers and the percentile in tooltips */
   all: Listing[];
   threshold: number;
-  /** if given, only these listings are drawn */
+  /** if given, only these listings are drawn (all of them reappear while a region is being drawn) */
   highlight?: Set<string>;
   /** polygons of the buy box being edited (drawn in teal) */
   regions?: LatLng[][];
@@ -79,14 +79,14 @@ export function MapView(p: Props) {
   }, [style]);
 
   // ---- listings
-  const sig = `${geo.length}|${p.threshold}|${[...hidden].join()}|${p.highlight ? [...p.highlight].join(',') : 'all'}`;
+  const sig = `${geo.length}|${p.threshold}|${[...hidden].join()}|${p.highlight ? [...p.highlight].join(',') : 'all'}|${drawing}`;
   useEffect(() => {
     const m = map.current!;
     const g = markers.current!;
     g.clearLayers();
     const revs = geo.map((l) => l.rev);
     const lo = Math.min(...revs), hi = Math.max(...revs);
-    const hl = propsRef.current.highlight;
+    const hl = drawing ? undefined : propsRef.current.highlight; // while drawing, show every listing at full strength
     geo.forEach((l, i) => {
       const t = tiering.tier[i];
       if (hidden.has(t)) return;
