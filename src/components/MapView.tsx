@@ -61,14 +61,11 @@ export function MapView(p: Props) {
 
   // ---- init
   useEffect(() => {
-    const m = L.map(el.current!, { preferCanvas: true, zoomControl: true, scrollWheelZoom: false }).setView([39, -98], 4);
+    const m = L.map(el.current!, { preferCanvas: true, zoomControl: true, scrollWheelZoom: true }).setView([39, -98], 4);
     map.current = m;
     markers.current = L.layerGroup().addTo(m);
     shapes.current = L.layerGroup().addTo(m);
     draft.current = L.layerGroup().addTo(m);
-    m.on('focus', () => m.scrollWheelZoom.enable());
-    m.on('blur', () => m.scrollWheelZoom.disable());
-    m.on('click', () => m.scrollWheelZoom.enable());
     return () => { m.remove(); map.current = null; };
   }, []);
 
