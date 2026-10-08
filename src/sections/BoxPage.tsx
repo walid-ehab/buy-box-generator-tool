@@ -124,6 +124,13 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
 
       {/* ----------------------------------------------------------- size */}
       <Section id="sec-size" eyebrow="Step 1" title="What size of property?" intro={edit ? 'These charts show baths and sleeps for listings in this buy box’s bedroom range. Use them to pick the ideal bath and sleep count, then set the sizes in the selector underneath.' : undefined}>
+        {!edit && (
+          <div class="specgrid specrow">
+            <div class="spec"><b>{rangeLabel(box.beds)}</b><span>Bedrooms</span></div>
+            <div class="spec"><b>{rangeLabel(box.baths)}</b><span>Baths</span></div>
+            <div class="spec"><b>{rangeLabel(box.sleeps)}</b><span>Sleeps</span></div>
+          </div>
+        )}
         <div class="toolbar">
           <span class="lbl">{bedPool.length} listings with {rangeLabel(box.beds)} bedrooms · showing</span>
           <Segmented value={sizeScope} onChange={setSizeScope} options={[{ value: 'all', label: `All (${bedPool.length})` }, { value: 'above', label: `≥ ${fmtK(s.threshold)} (${bedPool.filter((l) => l.rev >= s.threshold).length})` }]} />
@@ -147,12 +154,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
             })}
           </div>
         ) : <Callout tone="warn">No listings have {rangeLabel(box.beds)} bedrooms{sizeScope === 'above' ? ` and earn ${fmtK(s.threshold)}+` : ''}. Widen the bedroom range.</Callout>}
-        <div class="sizetop">
-          <div class="specgrid">
-            <div class="spec"><b>{rangeLabel(box.beds)}</b><span>Bedrooms</span></div>
-            <div class="spec"><b>{rangeLabel(box.baths)}</b><span>Baths</span></div>
-            <div class="spec"><b>{rangeLabel(box.sleeps)}</b><span>Sleeps</span></div>
-          </div>
+        {edit && <div class="sizetop">
           {edit && (
             <Card title="Property size" class="sizeed">
               <div class="sizeed-row">
@@ -165,7 +167,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
               </div>
             </Card>
           )}
-        </div>
+        </div>}
         {!edit && (box.filterBy.beds || box.filterBy.baths || box.filterBy.sleeps) && (
           <p class="muted small">Analytics below use listings with {[box.filterBy.beds && `${rangeLabel(box.beds)} bedrooms`, box.filterBy.baths && `${rangeLabel(box.baths)} baths`, box.filterBy.sleeps && `sleeps ${rangeLabel(box.sleeps)}`].filter(Boolean).join(', ')}{box.regions.length ? ', inside the drawn region' : ''}.</p>
         )}
