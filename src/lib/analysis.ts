@@ -309,7 +309,29 @@ export function niceAnalysis(listings: Listing[], data: Dataset, opt: NiceOption
   };
 }
 
-/** Ranked nice-to-haves: modelled amenities by uplift (significant ones first within equal-sign groups is NOT applied — pure uplift order). */
+/** Modelled amenities, highest revenue uplift first. */
 export function rankNice(res: NiceResult): NiceRow[] {
   return res.rows.filter((r) => r.status === 'ranked' && r.effect != null).sort((a, b) => b.effect! - a.effect!);
+}
+
+/**
+ * Fill in must/nice selections the analyst has not touched yet:
+ * must-haves = penetration ≥ cutoff among listings above the revenue threshold;
+ * nice-to-haves = top 5 significant positive-uplift amenities. Returns true if anything changed.
+ */
+export function resolveSelections(box: BuyBox, data: Dataset, marketThreshold: number): boolean {
+  const ls = boxListings(data, box);
+  let changed = false;
+  const same = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i]);
+  if (!box.must.touched) {
+    const pr = penetration(ls, data, box.must.revThreshold ?? marketThreshold);
+    const sel = pr.filter((r) => r.n > 0 && r.pct >= box.must.penetration).map((r) => r.key);
+    if (!same(sel, box.must.selected)) { box.must.selected = sel; changed = true; }
+  }
+  if (!box.nice.touched) {
+    const res = niceAnalysis(ls, data, { exclude: new Set(box.must.selected), minCount: box.nice.minCount, vifLimit: box.nice.vifLimit });
+    const sel = rankNice(res).filter((r) => r.significant && r.effect! > 0).slice(0, 5).map((r) => r.key);
+    if (!same(sel, box.nice.selected)) { box.nice.selected = sel; changed = true; }
+  }
+  return changed;
 }

@@ -8,5 +8,4 @@ export default defineConfig({
   base: './',
   plugins: [preact(), viteSingleFile()],
   build: { chunkSizeWarningLimit: 4000 },
-  test: { include: ['tests/**/*.test.ts'] },
 });
