@@ -19,7 +19,7 @@ interface Props {
   /** every listing in the market — used for revenue tiers and the percentile in tooltips */
   all: Listing[];
   threshold: number;
-  /** if given, only these are drawn (others stay hidden, except faintly while a region is being drawn) */
+  /** if given, only these listings are drawn */
   highlight?: Set<string>;
   /** polygons of the buy box being edited (drawn in teal) */
   regions?: LatLng[][];
@@ -79,7 +79,7 @@ export function MapView(p: Props) {
   }, [style]);
 
   // ---- listings
-  const sig = `${geo.length}|${p.threshold}|${[...hidden].join()}|${p.highlight ? [...p.highlight].join(',') : 'all'}|${drawing}`;
+  const sig = `${geo.length}|${p.threshold}|${[...hidden].join()}|${p.highlight ? [...p.highlight].join(',') : 'all'}`;
   useEffect(() => {
     const m = map.current!;
     const g = markers.current!;
@@ -91,7 +91,7 @@ export function MapView(p: Props) {
       const t = tiering.tier[i];
       if (hidden.has(t)) return;
       const dim = hl ? !hl.has(l.id) : false;
-      if (dim && !drawing) return;
+      if (dim) return;
       const radius = 4 + 7 * ((l.rev - lo) / (hi - lo || 1));
       const mk = L.circleMarker([l.lat!, l.lng!], {
         radius, color: dim ? '#fff' : '#fff', weight: dim ? 0.3 : 0.8, fillColor: TIER_COLORS[t], fillOpacity: dim ? 0.18 : 0.9, opacity: dim ? 0.2 : 0.9,

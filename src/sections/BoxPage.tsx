@@ -177,7 +177,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       <Section id="sec-criteria" eyebrow="Step 2" title="Where?" intro={edit ? 'Draw the region this buy box applies to. Only listings inside it (and matching the filters from step 1) are used in every analysis below.' : undefined}>
         <MapView all={d.listings} threshold={s.threshold} height={540} highlight={box.regions.length || box.filterBy.beds || box.filterBy.baths || box.filterBy.sleeps ? ids : undefined}
           regions={box.regions} editable={edit} fitToRegions onRegions={(r) => { box.regions = r; commit('data'); }} />
-        <p class="muted small">{box.regions.length ? `${box.regions.length} region${box.regions.length > 1 ? 's' : ''} drawn.` : 'No region drawn: the whole market is used.'} {listings.length} listing{listings.length === 1 ? '' : 's'} match this buy box; dimmed dots are excluded.</p>
+        <p class="muted small">{box.regions.length ? `${box.regions.length} region${box.regions.length > 1 ? 's' : ''} drawn.` : 'No region drawn: the whole market is used.'} {listings.length} listing{listings.length === 1 ? '' : 's'} match this buy box.</p>
         {listings.length === 0 && <Callout tone="warn">No listings match this region and size — widen the filters.</Callout>}
         {small && <Callout tone="warn">Only {listings.length} comparable listings. Treat the statistics below as directional.</Callout>}
       </Section>
