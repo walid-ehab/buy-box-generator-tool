@@ -73,7 +73,6 @@ export const PROFILE: GroupDef = {
 export const TRAVELERS: GroupDef = {
   id: 'travelers', eyebrow: 'Guests', title: 'Traveler demographics',
   fields: [{ id: 'icp', label: 'Traveler ICP', rows: 3, placeholder: 'e.g. Group trip (business and family) — who is the ideal guest, and what does the chart above tell us?' }],
-  images: [{ id: 'icpImages', label: 'Images' }],
 };
 
 export const COMPS: GroupDef[] = [
