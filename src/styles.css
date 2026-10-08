@@ -210,3 +210,7 @@ body { overflow-x: clip; }
 .cutline::before { content: ''; position: absolute; top: 0; bottom: 0; left: -14px; right: -14px; }
 .cutline:focus-visible .cuthandle, .cutline:hover .cuthandle { box-shadow: 0 0 0 4px rgba(244,106,37,.25); }
 .cuthandle { position: absolute; top: -26px; left: 0; transform: translateX(-50%); background: var(--orange); color: #fff; font-size: 12px; font-weight: 700; border-radius: 99px; padding: 3px 11px; white-space: nowrap; user-select: none; transition: box-shadow .12s; }
+
+/* controls in card headers sit on a common bottom line (inputs have a label above them) */
+.card-actions .row { align-items: flex-end; }
+.card-actions .segmented { margin-bottom: 0; }
