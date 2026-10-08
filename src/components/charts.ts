@@ -32,18 +32,18 @@ export function revenueHistogram(listings: Listing[], markers: Marker[]): Opt {
   };
 }
 
-export function countBars(counts: Map<number, number>, label: string, color = NAVY): Opt {
+export function countBars(counts: Map<number, number>, label: string, color = NAVY, highlight?: (k: number) => boolean): Opt {
   const keys = [...counts.keys()].sort((a, b) => a - b);
   return {
     grid: { left: 40, right: 12, top: 18, bottom: 36 },
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
     xAxis: { type: 'category', data: keys.map(String), ...axisCommon, name: label, nameLocation: 'middle', nameGap: 24 },
     yAxis: { type: 'value', ...axisCommon, minInterval: 1 },
-    series: [{ type: 'bar', data: keys.map((k) => counts.get(k)), itemStyle: { color, borderRadius: [4, 4, 0, 0] }, barMaxWidth: 34, label: { show: true, position: 'top', color: MUTED, fontSize: 10 } }],
+    series: [{ type: 'bar', data: keys.map((k) => ({ value: counts.get(k), itemStyle: { color: !highlight || highlight(k) ? color : '#C9CFD6', borderRadius: [4, 4, 0, 0] } })), barMaxWidth: 34, label: { show: true, position: 'top', color: MUTED, fontSize: 10 } }],
   };
 }
 
-export function revenueBoxes(groups: { key: number; n: number; stats: { min: number; q1: number; median: number; q3: number; max: number; outliers: number[] } }[], label: string, color = TEAL): Opt {
+export function revenueBoxes(groups: { key: number; n: number; stats: { min: number; q1: number; median: number; q3: number; max: number; outliers: number[] } }[], label: string, color = TEAL, highlight?: (k: number) => boolean): Opt {
   const cats = groups.map((g) => `${g.key}\n(n=${g.n})`);
   const outliers: [number, number][] = [];
   groups.forEach((g, i) => g.stats.outliers.forEach((o) => outliers.push([i, o])));
@@ -60,7 +60,7 @@ export function revenueBoxes(groups: { key: number; n: number; stats: { min: num
     xAxis: { type: 'category', data: cats, ...axisCommon, name: label, nameLocation: 'middle', nameGap: 38, splitLine: { show: false } },
     yAxis: { type: 'value', ...axisCommon, axisLabel: { ...axisCommon.axisLabel, formatter: (v: number) => fmtK(v) } },
     series: [
-      { type: 'boxplot', data: groups.map((g) => [g.stats.min, g.stats.q1, g.stats.median, g.stats.q3, g.stats.max]), itemStyle: { color: color + '33', borderColor: color, borderWidth: 1.5 }, boxWidth: [8, 44] },
+      { type: 'boxplot', data: groups.map((g) => { const on = !highlight || highlight(g.key); return { value: [g.stats.min, g.stats.q1, g.stats.median, g.stats.q3, g.stats.max], itemStyle: { color: on ? color + '33' : '#EEF0F2', borderColor: on ? color : '#B0B7C3', borderWidth: 1.5 } }; }), itemStyle: { color: color + '33', borderColor: color, borderWidth: 1.5 }, boxWidth: [8, 44] },
       { type: 'scatter', data: outliers, symbolSize: 5, itemStyle: { color: color, opacity: 0.55 } },
       {
         // median line labels

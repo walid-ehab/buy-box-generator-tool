@@ -1,15 +1,15 @@
-import { useEffect, useMemo } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import { Chart } from '../components/Chart';
-import { corrHeatmap, penetrationChart, prevalenceChart, upliftChart, vifChart } from '../components/charts';
+import { corrHeatmap, countBars, revenueBoxes, penetrationChart, prevalenceChart, upliftChart, vifChart } from '../components/charts';
 import { FieldGroup, setText } from '../components/FieldGroup';
 import { MapView } from '../components/MapView';
-import { Callout, Card, Images, NumberField, RangeEditor, Section, Stat, Text, fmtK, fmtMoney } from '../components/ui';
+import { Callout, Card, Images, NumberField, RangeEditor, Section, Segmented, Stat, Text, fmtK, fmtMoney } from '../components/ui';
 import {
-  boxListings, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
+  boxListings, countBy, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
 } from '../lib/analysis';
 import { COMPS, LOCATION, NOTES, PROFILE, PROJECTIONS_FIELDS, REGULATIONS, REG_TIERS, TRAVELERS } from '../lib/fields';
 import { uid } from '../lib/defaults';
-import type { BuyBox, Img } from '../lib/types';
+import type { BuyBox, Img, Listing } from '../lib/types';
 import { commit, deleteBox, setPage, store } from '../store';
 import { boxColor } from './Overview';
 
@@ -21,6 +21,9 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
   const listings = useMemo(() => boxListings(d, box), [dv, box.id]);
   const ids = useMemo(() => new Set(listings.map((l) => l.id)), [listings]);
   const sum = useMemo(() => summarise(listings), [listings]);
+  const [sizeScope, setSizeScope] = useState<'all' | 'above'>('all');
+  const bedPool = useMemo(() => d.listings.filter((l) => inRange(l.beds, box.beds)), [dv, box.id]);
+  const sizePool = sizeScope === 'all' ? bedPool : bedPool.filter((l) => l.rev >= s.threshold);
   const mustThr = box.must.revThreshold ?? s.threshold;
   const pen = useMemo(() => penetration(listings, d, mustThr), [dv, box.id]);
   const mustSet = new Set(box.must.selected);
@@ -114,46 +117,71 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </header>
 
       <nav class="subnav">
-        {[['sec-criteria', 'Region & size'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property'], ['sec-location', 'Location'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-proj', 'Projections']].map(([id, l]) => (
+        {[['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property'], ['sec-location', 'Location'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-proj', 'Projections']].map(([id, l]) => (
           <button onClick={() => jump(id)}>{l}</button>
         ))}
       </nav>
 
-      {/* ----------------------------------------------------------- criteria */}
-      <Section id="sec-criteria" eyebrow="Step 1" title="Where and what size" intro={edit ? 'Draw the region this buy box applies to. Only listings inside it (and matching the bedroom filter) are used in every analysis on this page.' : undefined}>
-        <div class="criteria">
-          <div class="crit-map">
-            <MapView all={d.listings} threshold={s.threshold} height={520} highlight={box.regions.length || box.filterBy.beds || box.filterBy.baths || box.filterBy.sleeps ? ids : undefined}
-              regions={box.regions} editable={edit} fitToRegions onRegions={(r) => { box.regions = r; commit('data'); }} />
-            <p class="muted small">{box.regions.length ? `${box.regions.length} region${box.regions.length > 1 ? 's' : ''} drawn — dimmed dots are excluded.` : 'No region drawn: the whole market is used.'}</p>
+      {/* ----------------------------------------------------------- size */}
+      <Section id="sec-size" eyebrow="Step 1" title="What size of property?" intro={edit ? 'Set the bedroom count or range for this buy box. The bath and sleep charts below update to show only listings with those bedrooms, so you can pick the ideal bath and sleep count.' : undefined}>
+        <div class="sizetop">
+          <div class="specgrid">
+            <div class="spec"><b>{rangeLabel(box.beds)}</b><span>Bedrooms</span></div>
+            <div class="spec"><b>{rangeLabel(box.baths)}</b><span>Baths</span></div>
+            <div class="spec"><b>{rangeLabel(box.sleeps)}</b><span>Sleeps</span></div>
           </div>
-          <div class="crit-side">
-            <div class="specgrid">
-              <div class="spec"><b>{rangeLabel(box.beds)}</b><span>Bedrooms</span></div>
-              <div class="spec"><b>{rangeLabel(box.baths)}</b><span>Baths</span></div>
-              <div class="spec"><b>{rangeLabel(box.sleeps)}</b><span>Sleeps</span></div>
-            </div>
-            {edit && (
-              <Card title="Property size">
+          {edit && (
+            <Card title="Property size" class="sizeed">
+              <div class="sizeed-row">
                 {([['beds', 'Bedrooms', 'BR'], ['baths', 'Baths', 'baths'], ['sleeps', 'Sleeps', 'guests']] as const).map(([k, label, unit]) => (
                   <div class="critrow" key={k}>
                     <RangeEditor label={label} unit={unit} value={box[k]} onChange={(r) => { box[k] = r; commit('data'); }} />
-                    <label class="check"><input type="checkbox" checked={box.filterBy[k]} onChange={(e) => { box.filterBy[k] = (e.target as HTMLInputElement).checked; commit('data'); }} /> also filter the analytics below</label>
+                    <label class="check"><input type="checkbox" checked={box.filterBy[k]} onChange={(e) => { box.filterBy[k] = (e.target as HTMLInputElement).checked; commit('data'); }} /> also filter the analytics</label>
                   </div>
                 ))}
-              </Card>
-            )}
-            {!edit && (box.filterBy.beds || box.filterBy.baths || box.filterBy.sleeps) && (
-              <p class="muted small">Analytics below use listings with {[box.filterBy.beds && `${rangeLabel(box.beds)} bedrooms`, box.filterBy.baths && `${rangeLabel(box.baths)} baths`, box.filterBy.sleeps && `sleeps ${rangeLabel(box.sleeps)}`].filter(Boolean).join(', ')}{box.regions.length ? ', inside the drawn region' : ''}.</p>
-            )}
-            {listings.length === 0 && <Callout tone="warn">No listings match this region and size — widen the filters.</Callout>}
-            {small && <Callout tone="warn">Only {listings.length} comparable listings. Treat the statistics below as directional.</Callout>}
-          </div>
+              </div>
+            </Card>
+          )}
         </div>
+        <div class="toolbar">
+          <span class="lbl">{bedPool.length} listings with {rangeLabel(box.beds)} bedrooms · showing</span>
+          <Segmented value={sizeScope} onChange={setSizeScope} options={[{ value: 'all', label: `All (${bedPool.length})` }, { value: 'above', label: `≥ ${fmtK(s.threshold)} (${bedPool.filter((l) => l.rev >= s.threshold).length})` }]} />
+        </div>
+        {sizePool.length ? (
+          <div class="two">
+            {([['baths', 'Baths', (l: Listing) => l.baths, '#F46A25', box.baths], ['sleeps', 'Sleeps', (l: Listing) => l.sleeps, '#1B998B', box.sleeps]] as const).map(([k, label, pick, color, rng]) => {
+              const groups = groupRevenue(sizePool, pick);
+              const best = groups.filter((g) => g.n >= 3).sort((a, b) => b.stats.median - a.stats.median)[0];
+              const hl = (v: number) => inRange(v, rng);
+              return (
+                <Card key={k} title={`${label} for ${rangeLabel(box.beds)} bedrooms`}>
+                  <Chart option={countBars(countBy(sizePool, pick), label, color, hl)} height={210} />
+                  <Chart option={revenueBoxes(groups, label, color, hl)} height={300} />
+                  <p class="muted small">
+                    {best ? <>Highest median revenue: <b>{best.key} {label.toLowerCase()}</b> at {fmtK(best.stats.median)} (n={best.n}). </> : 'Not enough listings per group to compare. '}
+                    Highlighted = your target ({rangeLabel(rng)}).
+                  </p>
+                </Card>
+              );
+            })}
+          </div>
+        ) : <Callout tone="warn">No listings have {rangeLabel(box.beds)} bedrooms{sizeScope === 'above' ? ` and earn ${fmtK(s.threshold)}+` : ''}. Widen the bedroom range.</Callout>}
+        {!edit && (box.filterBy.beds || box.filterBy.baths || box.filterBy.sleeps) && (
+          <p class="muted small">Analytics below use listings with {[box.filterBy.beds && `${rangeLabel(box.beds)} bedrooms`, box.filterBy.baths && `${rangeLabel(box.baths)} baths`, box.filterBy.sleeps && `sleeps ${rangeLabel(box.sleeps)}`].filter(Boolean).join(', ')}{box.regions.length ? ', inside the drawn region' : ''}.</p>
+        )}
+      </Section>
+
+      {/* ----------------------------------------------------------- region */}
+      <Section id="sec-criteria" eyebrow="Step 2" title="Where?" intro={edit ? 'Draw the region this buy box applies to. Only listings inside it (and matching the filters from step 1) are used in every analysis below.' : undefined}>
+        <MapView all={d.listings} threshold={s.threshold} height={540} highlight={box.regions.length || box.filterBy.beds || box.filterBy.baths || box.filterBy.sleeps ? ids : undefined}
+          regions={box.regions} editable={edit} fitToRegions onRegions={(r) => { box.regions = r; commit('data'); }} />
+        <p class="muted small">{box.regions.length ? `${box.regions.length} region${box.regions.length > 1 ? 's' : ''} drawn.` : 'No region drawn: the whole market is used.'} {listings.length} listing{listings.length === 1 ? '' : 's'} match this buy box; dimmed dots are excluded.</p>
+        {listings.length === 0 && <Callout tone="warn">No listings match this region and size — widen the filters.</Callout>}
+        {small && <Callout tone="warn">Only {listings.length} comparable listings. Treat the statistics below as directional.</Callout>}
       </Section>
 
       {/* ----------------------------------------------------------- must-haves */}
-      <Section id="sec-must" eyebrow="Step 2" title="Must-have amenities" intro={`Share of listings earning ${fmtK(mustThr)}+ that offer each amenity. Anything at or above the cutoff is a must-have — guests (and the algorithm) expect it at this revenue level.`}>
+      <Section id="sec-must" eyebrow="Step 3" title="Must-have amenities" intro={`Share of listings earning ${fmtK(mustThr)}+ that offer each amenity. Anything at or above the cutoff is a must-have — guests (and the algorithm) expect it at this revenue level.`}>
         <Card title={`Amenity penetration · ${aboveBox.length} listings ≥ ${fmtK(mustThr)}`} actions={
           <div class="row gap">
             <NumberField label="Revenue ≥" prefix="$" step={1000} width={92} value={mustThr} onChange={(v) => { box.must.revThreshold = Math.max(0, v); commit('data'); }} />
@@ -176,7 +204,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </Section>
 
       {/* ----------------------------------------------------------- nice-to-haves */}
-      <Section id="sec-nice" eyebrow="Step 3" title="Nice-to-have amenities" intro="Must-haves are removed from this analysis. We compare what the best and worst listings offer, then estimate each amenity's isolated effect on revenue after controlling for bedrooms, checking for collinearity and requiring a healthy sample.">
+      <Section id="sec-nice" eyebrow="Step 4" title="Nice-to-have amenities" intro="Must-haves are removed from this analysis. We compare what the best and worst listings offer, then estimate each amenity's isolated effect on revenue after controlling for bedrooms, checking for collinearity and requiring a healthy sample.">
         <div class="two">
           <Card title={`Prevalence: top ${box.nice.topPct}% vs bottom ${box.nice.topPct}%`} actions={<NumberField label="Group size" suffix="%" step={5} min={1} max={50} width={56} value={box.nice.topPct} onChange={(v) => { box.nice.topPct = Math.min(50, Math.max(1, v)); commit('data'); }} />}>
             <Chart option={prevalenceChart(prev.rows, box.nice.topPct)} height={Math.max(260, Math.min(14, prev.rows.length) * 36 + 60)} />
