@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import { Chart } from '../components/Chart';
-import { corrHeatmap, countBars, revenueBoxes, penetrationChart, prevalenceChart, upliftChart, vifChart } from '../components/charts';
+import { PIE_COLORS, travelerPie, corrHeatmap, countBars, revenueBoxes, penetrationChart, prevalenceChart, upliftChart, vifChart } from '../components/charts';
 import { FieldGroup, setText } from '../components/FieldGroup';
 import { MapView } from '../components/MapView';
 import { CutoffChart } from '../components/CutoffChart';
 import { Callout, Card, Images, NumberField, RangeEditor, Section, Segmented, Stat, Text, fmtK, fmtMoney } from '../components/ui';
 import {
-  boxListings, countBy, mustPoolThreshold, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
+  boxListings, countBy, mustPoolThreshold, travelerMix, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
 } from '../lib/analysis';
-import { COMPS, LOCATION, NOTES, PROFILE, PROJECTIONS_FIELDS, REGULATIONS, REG_TIERS, TRAVELERS } from '../lib/fields';
+import { COMPS, NOTES, PROFILE, PROJECTIONS_FIELDS, REGULATIONS, REG_TIERS, TRAVELERS } from '../lib/fields';
 import { uid } from '../lib/defaults';
 import type { BuyBox, Img, Listing } from '../lib/types';
 import { commit, deleteBox, setPage, store } from '../store';
@@ -79,6 +79,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
     commit('text');
   };
 
+  const mix = useMemo(() => travelerMix(listings, d), [dv, box.id]);
   const small = listings.length > 0 && listings.length < 15;
   const tier = REG_TIERS.find((t) => t.v === box.text.regTier);
   const suggest = () => {
@@ -122,7 +123,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </header>
 
       <nav class="subnav">
-        {[['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property'], ['sec-location', 'Location'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-proj', 'Projections']].map(([id, l]) => (
+        {[['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-proj', 'Projections']].map(([id, l]) => (
           <button onClick={() => jump(id)}>{l}</button>
         ))}
       </nav>
@@ -278,8 +279,21 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </Section>
 
       <FieldGroup box={box} def={PROFILE} edit={edit} />
-      <FieldGroup box={box} def={LOCATION} edit={edit} />
-      <FieldGroup box={box} def={TRAVELERS} edit={edit} />
+      <FieldGroup box={box} def={TRAVELERS} edit={edit}>
+        {mix ? (
+          <Card title="Who leaves the reviews?" class="mixcard">
+            <div class="mix">
+              <Chart option={travelerPie(mix.rows)} height={320} />
+              <div class="mixlegend">
+                {mix.rows.slice().sort((a, b) => b.pct - a.pct).map((r) => (
+                  <div class="mixrow" key={r.key}><i style={{ background: PIE_COLORS[mix.rows.findIndex((x) => x.key === r.key) % PIE_COLORS.length] }} /><span>{r.label}</span><b>{r.pct.toFixed(1)}%</b></div>
+                ))}
+                <p class="muted small">Share of guest reviews by traveler type across the {mix.n} listings in this buy box, weighted by each listing's review count{mix.reviews ? ` (${mix.reviews.toLocaleString()} reviews)` : ''}.</p>
+              </div>
+            </div>
+          </Card>
+        ) : edit ? <Callout tone="info">The uploaded data has no review-percentage columns (headers starting with <code>pct_</code>), so there is no traveler mix chart. You can still describe the traveler profile below.</Callout> : null}
+      </FieldGroup>
       {(edit || COMPS.some((c) => c.fields.some((f) => (box.text[f.id] ?? '').trim()) || c.images!.some((i) => (box.images[i.id] ?? []).length))) && (
         <section class="section" id="sec-comps">
           <header class="section-head"><div class="eyebrow">Comparables</div><h2>Comp sets</h2></header>

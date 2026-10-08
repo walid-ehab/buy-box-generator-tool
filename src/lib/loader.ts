@@ -50,6 +50,18 @@ export function amenityColumns(headers: string[]): string[] {
   return headers.filter((h) => /^has[_ ]/i.test(h.trim()));
 }
 
+const REVIEW_COUNT_ALIASES = ['reviews', 'allreviews', 'totalreviews', 'reviewscount', 'propertyreviews', 'numberofreviews'];
+
+export function travelerColumns(headers: string[]): string[] {
+  return headers.filter((h) => /^pct[_ ]/i.test(h.trim()));
+}
+
+export function prettyTraveler(col: string): { key: string; label: string } {
+  const raw = col.replace(/^pct[_ ]/i, '');
+  const t = raw.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+  return { key: norm(raw), label: t.charAt(0).toUpperCase() + t.slice(1) };
+}
+
 export function readWorkbook(buf: ArrayBuffer): SheetInfo[] {
   const wb = XLSX.read(buf, { type: 'array' });
   const out: SheetInfo[] = [];
@@ -106,6 +118,8 @@ export function buildDataset(sheet: SheetInfo, mapping: Mapping, source: string)
   // de-duplicate by key (e.g. HAS_pool in two columns) — first wins
   const seen = new Set<string>();
   const amCols = cols.filter((c) => (seen.has(c.key) ? false : (seen.add(c.key), true)));
+  const tCols = travelerColumns(sheet.headers).map((c) => ({ col: c, ...prettyTraveler(c) }));
+  const rwCol = sheet.headers.find((h) => REVIEW_COUNT_ALIASES.includes(norm(h)) && sheet.rows.some((r) => num(r[h]) != null));
   const listings: Listing[] = [];
   const g = (r: Record<string, unknown>, f: FieldKey) => (mapping[f] ? r[mapping[f]!] : null);
   let occMax = 0;
@@ -128,6 +142,8 @@ export function buildDataset(sheet: SheetInfo, mapping: Mapping, source: string)
       lat: num(g(r, 'lat')), lng: num(g(r, 'lng')),
       zip: zipRaw == null || zipRaw === '' ? '' : String(Math.round(Number(zipRaw)) || zipRaw),
       am: amCols.map((c) => truthy(r[c.col])),
+      ...(tCols.length && tCols.some((c) => num(r[c.col]) != null) ? { tp: tCols.map((c) => num(r[c.col]) ?? 0) } : {}),
+      ...(rwCol && num(r[rwCol]) != null ? { rw: num(r[rwCol])! } : {}),
     });
   });
   if (occMax > 1.5) listings.forEach((l) => { if (l.occ != null) l.occ /= 100; });
@@ -135,7 +151,8 @@ export function buildDataset(sheet: SheetInfo, mapping: Mapping, source: string)
   const keep = amCols.map((_, i) => listings.some((l) => l.am[i] === 1));
   const amenities = amCols.filter((_, i) => keep[i]).map(({ key, label }) => ({ key, label }));
   listings.forEach((l) => { l.am = l.am.filter((_, i) => keep[i]); });
-  return { source, amenities, listings };
+  const hasMix = tCols.length > 0 && listings.some((l) => l.tp);
+  return { source, amenities, ...(hasMix ? { traveler: tCols.map(({ key, label }) => ({ key, label })) } : {}), listings };
 }
 
 export async function loadFile(file: File): Promise<SheetInfo[]> {

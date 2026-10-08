@@ -70,17 +70,9 @@ export const PROFILE: GroupDef = {
   ],
 };
 
-export const LOCATION: GroupDef = {
-  id: 'location', eyebrow: 'Where', title: 'Property locations',
-  fields: [
-    { id: 'locations', label: 'Ideal location(s)', rows: 4, placeholder: 'Different pockets or areas in the market, and why they work.' },
-  ],
-  images: [{ id: 'locationImages', label: 'Area images / map screenshots' }],
-};
-
 export const TRAVELERS: GroupDef = {
   id: 'travelers', eyebrow: 'Guests', title: 'Traveler demographics',
-  fields: [{ id: 'icp', label: 'Traveler ICP', rows: 3, placeholder: 'e.g. Group trip (business and family)' }],
+  fields: [{ id: 'icp', label: 'Traveler ICP', rows: 3, placeholder: 'e.g. Group trip (business and family) — who is the ideal guest, and what does the chart above tell us?' }],
   images: [{ id: 'icpImages', label: 'Images' }],
 };
 

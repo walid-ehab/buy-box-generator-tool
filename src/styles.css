@@ -223,3 +223,8 @@ body { overflow-x: clip; }
 .profileblock.noimg .pb-grid { grid-template-columns: 1fr; }
 @media (max-width: 860px) { .pb-grid { grid-template-columns: 1fr; } }
 .profileblock.notext .pb-grid { grid-template-columns: 1fr; }
+
+/* ---------- traveler mix */
+.mix { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: center; } @media (max-width: 860px) { .mix { grid-template-columns: 1fr; } }
+.mixrow { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); } .mixrow i { width: 12px; height: 12px; border-radius: 50%; flex: none; } .mixrow span { flex: 1; } .mixrow b { font-family: var(--serif); font-size: 18px; }
+.mixcard { margin-bottom: 22px; }

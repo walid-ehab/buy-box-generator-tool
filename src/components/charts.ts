@@ -169,3 +169,19 @@ export function corrHeatmap(res: NiceResult): Opt {
     series: [{ type: 'heatmap', data, itemStyle: { borderColor: '#fff', borderWidth: 1 }, label: { show: labels.length <= 12, fontSize: 9, color: INK, formatter: (p: any) => (p.value[0] === p.value[1] ? '' : p.value[2]) } }],
   };
 }
+
+export const PIE_COLORS = ['#1B998B', '#F46A25', '#17415B', '#F4D35E', '#7B5EA7', '#D7263D', '#2E86AB', '#8A9A5B'];
+
+export function travelerPie(rows: { label: string; pct: number }[]): Opt {
+  return {
+    tooltip: { trigger: 'item', formatter: (p: any) => `<b>${p.name}</b><br/>${p.value.toFixed(1)}% of reviews` },
+    color: PIE_COLORS,
+    series: [{
+      type: 'pie', radius: ['42%', '72%'], center: ['50%', '52%'], avoidLabelOverlap: true, minAngle: 3,
+      itemStyle: { borderColor: '#fff', borderWidth: 3, borderRadius: 6 },
+      label: { formatter: (p: any) => `${p.name}\n{b|${p.value.toFixed(0)}%}`, color: INK, fontSize: 12, lineHeight: 16, rich: { b: { fontWeight: 700, fontSize: 14 } } },
+      labelLine: { length: 12, length2: 10 },
+      data: rows.map((r) => ({ name: r.label, value: +r.pct.toFixed(2) })),
+    }],
+  };
+}

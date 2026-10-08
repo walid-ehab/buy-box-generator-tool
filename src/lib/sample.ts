@@ -19,7 +19,10 @@ export function sampleDataset(): Dataset {
     const rev = Math.round(Math.exp(10.0 + 0.2 * beds + lift + norm() * 0.28) / 100) * 100;
     const cluster = rnd() < 0.55 ? [44.95, -124.015, 0.012] : rnd() < 0.5 ? [44.97, -124.02, 0.02] : [44.91, -124.0, 0.025];
     const sleeps = Math.min(20, beds * 2 + Math.round(rnd() * 3));
+    const raw = [0.2 + rnd() * 0.5, 0.1 + rnd() * 0.4, 0.1 + rnd() * 0.3, 0.1 + rnd() * 0.3];
+    const sum = raw.reduce((a, b) => a + b, 0);
     listings.push({
+      tp: raw.map((v) => +((v / sum) * 100).toFixed(2)), rw: 20 + Math.round(rnd() * 300),
       id: `S${1000 + i}`, title: `${['Coastal', 'Seaside', 'Dune', 'Tidewater', 'Driftwood', 'Harbor'][i % 6]} ${['Retreat', 'Hideaway', 'Lodge', 'Cottage', 'Haven'][i % 5]} #${i + 1}`,
       url: '', beds, sleeps, baths: Math.max(1, Math.round((beds * 0.8 + rnd()) * 2) / 2), rev,
       adr: Math.round(rev / 365 / (0.45 + rnd() * 0.3)), occ: +(0.45 + rnd() * 0.3).toFixed(2),
@@ -27,5 +30,8 @@ export function sampleDataset(): Dataset {
       zip: rnd() < 0.7 ? '97367' : '97369', am,
     });
   }
-  return { source: 'Sample data (synthetic)', amenities, listings };
+  return {
+    source: 'Sample data (synthetic)', amenities, listings,
+    traveler: ['Stayed with kids', 'Group trip', 'Stayed with a pet', 'Other reviews'].map((label) => ({ key: label.toLowerCase().replace(/[^a-z0-9]/g, ''), label })),
+  };
 }

@@ -340,3 +340,17 @@ export function resolveSelections(box: BuyBox, data: Dataset, marketThreshold: n
   }
   return changed;
 }
+
+export interface TravelerMix { rows: { key: string; label: string; pct: number }[]; n: number; reviews: number }
+
+/** Review-count-weighted average of each traveler-type share across the listings. */
+export function travelerMix(listings: Listing[], data: Dataset): TravelerMix | null {
+  const cats = data.traveler;
+  if (!cats?.length) return null;
+  const pool = listings.filter((l) => l.tp);
+  if (!pool.length) return null;
+  const w = (l: Listing) => (l.rw != null && l.rw > 0 ? l.rw : 1);
+  const total = pool.reduce((s, l) => s + w(l), 0);
+  const rows = cats.map((c, i) => ({ key: c.key, label: c.label, pct: pool.reduce((s, l) => s + l.tp![i] * w(l), 0) / total }));
+  return { rows, n: pool.length, reviews: pool.reduce((s, l) => s + (l.rw ?? 0), 0) };
+}

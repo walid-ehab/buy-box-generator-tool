@@ -1,10 +1,10 @@
 import * as echarts from 'echarts/core';
-import { BarChart, BoxplotChart, HeatmapChart, CustomChart } from 'echarts/charts';
+import { BarChart, BoxplotChart, HeatmapChart, CustomChart, PieChart } from 'echarts/charts';
 import { GridComponent, TooltipComponent, LegendComponent, MarkLineComponent, MarkAreaComponent, VisualMapComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useEffect, useRef } from 'preact/hooks';
 
-echarts.use([BarChart, BoxplotChart, HeatmapChart, CustomChart, GridComponent, TooltipComponent, LegendComponent, MarkLineComponent, MarkAreaComponent, VisualMapComponent, CanvasRenderer]);
+echarts.use([PieChart, BarChart, BoxplotChart, HeatmapChart, CustomChart, GridComponent, TooltipComponent, LegendComponent, MarkLineComponent, MarkAreaComponent, VisualMapComponent, CanvasRenderer]);
 
 export const INK = '#0E2A3B';
 export const MUTED = '#6B7A89';

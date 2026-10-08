@@ -15,11 +15,17 @@ export interface Listing {
   zip: string;
   /** 0/1 per dataset.amenities index */
   am: number[];
+  /** % of reviews per dataset.traveler category (0–100) */
+  tp?: number[];
+  /** number of reviews, used to weight the traveler mix */
+  rw?: number;
 }
 
 export interface Dataset {
   source: string;
   amenities: { key: string; label: string }[];
+  /** review-share categories found in the data (pct_* columns) */
+  traveler?: { key: string; label: string }[];
   listings: Listing[];
 }
 
