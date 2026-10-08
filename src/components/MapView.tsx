@@ -19,9 +19,9 @@ interface Props {
   /** every listing in the market — used for revenue tiers and the percentile in tooltips */
   all: Listing[];
   threshold: number;
-  /** if given, only these listings are drawn (all of them reappear while a region is being drawn) */
+  /** listings at full strength (in the region and passing the size filters); the rest are dimmed or hidden */
   highlight?: Set<string>;
-  /** listings to show while a region is being drawn (e.g. everything that passes the size filters, ignoring the region) */
+  /** listings that pass the size filters, ignoring the region: dimmed when outside it, full strength while drawing; anything else is hidden */
   whileDrawing?: Set<string>;
   /** polygons of the buy box being edited (drawn in teal) */
   regions?: LatLng[][];
@@ -88,12 +88,15 @@ export function MapView(p: Props) {
     g.clearLayers();
     const revs = geo.map((l) => l.rev);
     const lo = Math.min(...revs), hi = Math.max(...revs);
-    const hl = drawing ? (propsRef.current.whileDrawing ?? propsRef.current.highlight) : propsRef.current.highlight;
+    const hl = drawing ? propsRef.current.whileDrawing : propsRef.current.highlight;
     geo.forEach((l, i) => {
       const t = tiering.tier[i];
       if (hidden.has(t)) return;
+      // drawing: every listing that passes the size filters at full strength.
+      // otherwise: in-region = full, outside the region (but passing the size filters) = dimmed, rest hidden.
+      const passes = propsRef.current.whileDrawing;
+      if (hl && !hl.has(l.id) && passes && !passes.has(l.id)) return;
       const dim = hl ? !hl.has(l.id) : false;
-      if (dim) return;
       const radius = 4 + 7 * ((l.rev - lo) / (hi - lo || 1));
       const mk = L.circleMarker([l.lat!, l.lng!], {
         radius, color: dim ? '#fff' : '#fff', weight: dim ? 0.3 : 0.8, fillColor: TIER_COLORS[t], fillOpacity: dim ? 0.18 : 0.9, opacity: dim ? 0.2 : 0.9,
