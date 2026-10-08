@@ -214,3 +214,12 @@ body { overflow-x: clip; }
 /* controls in card headers sit on a common bottom line (inputs have a label above them) */
 .card-actions .row { align-items: flex-end; }
 .card-actions .segmented { margin-bottom: 0; }
+
+/* ---------- property profile blocks: text beside its own images */
+.profileblocks { display: grid; gap: 18px; }
+.profileblock { margin: 0; } .profileblock h3 { font-size: 16px; margin-bottom: 12px; }
+.pb-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 8px 28px; align-items: start; }
+.pb-grid .images { margin: 0; } .pb-text .textfield:last-child { margin-bottom: 0; }
+.profileblock.noimg .pb-grid { grid-template-columns: 1fr; }
+@media (max-width: 860px) { .pb-grid { grid-template-columns: 1fr; } }
+.profileblock.notext .pb-grid { grid-template-columns: 1fr; }

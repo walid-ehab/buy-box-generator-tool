@@ -5,6 +5,8 @@ export interface GroupDef {
   fields: FieldDef[];
   images?: { id: string; label: string; hint?: string }[];
   subgroups?: { title: string; fields: FieldDef[] }[];
+  /** if set, the group renders as side-by-side blocks: text fields on the left, their own reference images on the right */
+  blocks?: { title: string; fields: string[]; images: string }[];
 }
 
 export const REG_TIERS = [
@@ -57,9 +59,14 @@ export const PROFILE: GroupDef = {
     { id: 'privacy', label: 'Privacy / seclusion', rows: 1, single: true, placeholder: 'e.g. Fenced backyard' },
   ],
   images: [
-    { id: 'styleImages', label: 'Architectural style — reference images' },
-    { id: 'backyardImages', label: 'Backyard — reference images' },
-    { id: 'geoImages', label: 'View / waterfront / privacy — reference images' },
+    { id: 'styleImages', label: 'Reference images' },
+    { id: 'backyardImages', label: 'Reference images' },
+    { id: 'geoImages', label: 'Reference images' },
+  ],
+  blocks: [
+    { title: 'Architectural style', fields: ['style'], images: 'styleImages' },
+    { title: 'Backyard', fields: ['backyard'], images: 'backyardImages' },
+    { title: 'View, waterfront & privacy', fields: ['view', 'waterfront', 'privacy'], images: 'geoImages' },
   ],
 };
 
