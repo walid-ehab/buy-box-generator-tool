@@ -128,7 +128,7 @@ export function MapView(p: Props) {
       L.polygon(poly, { color: o.color, weight: 2, fillOpacity: 0.07, dashArray: '6 4' }).bindTooltip(esc(o.name), { sticky: true }).addTo(g);
     }));
     (p.regions ?? []).forEach((poly, i) => {
-      const pg = L.polygon(poly, { color: '#1B998B', weight: 3, fillColor: '#1B998B', fillOpacity: 0.12 }).addTo(g);
+      const pg = L.polygon(poly, { color: '#2a8068', weight: 3, fillColor: '#2a8068', fillOpacity: 0.12 }).addTo(g);
       if (p.editable) {
         pg.bindTooltip(`Region ${i + 1} — click to delete`, { sticky: true });
         pg.on('click', (e) => {
@@ -165,9 +165,9 @@ export function MapView(p: Props) {
     rubber.current = null;
     if (points.length) {
       const last = points[points.length - 1];
-      rubber.current = L.polyline([last, cursor.current ?? last], { color: '#F46A25', weight: 3, dashArray: '2 6', interactive: false }).addTo(d);
-      L.polyline(points, { color: '#F46A25', weight: 3, dashArray: '6 4', interactive: false }).addTo(d);
-      points.forEach((pt, i) => L.circleMarker(pt, { radius: i === 0 ? 7 : 4, color: '#F46A25', fillColor: '#fff', fillOpacity: 1, weight: 2 }).addTo(d));
+      rubber.current = L.polyline([last, cursor.current ?? last], { color: '#e9a754', weight: 3, dashArray: '2 6', interactive: false }).addTo(d);
+      L.polyline(points, { color: '#e9a754', weight: 3, dashArray: '6 4', interactive: false }).addTo(d);
+      points.forEach((pt, i) => L.circleMarker(pt, { radius: i === 0 ? 7 : 4, color: '#e9a754', fillColor: '#fff', fillOpacity: 1, weight: 2 }).addTo(d));
     }
   }, [drawing, points]);
 

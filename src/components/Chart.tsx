@@ -6,17 +6,17 @@ import { useEffect, useRef } from 'preact/hooks';
 
 echarts.use([PieChart, BarChart, BoxplotChart, HeatmapChart, CustomChart, GridComponent, TooltipComponent, LegendComponent, MarkLineComponent, MarkAreaComponent, VisualMapComponent, CanvasRenderer]);
 
-export const INK = '#0E2A3B';
+export const INK = '#0c3a2f';
 export const MUTED = '#6B7A89';
 export const GRID = '#E6E2D9';
-export const TEAL = '#1B998B';
-export const ORANGE = '#F46A25';
-export const NAVY = '#17415B';
+export const TEAL = '#2a8068';
+export const ORANGE = '#e9a754';
+export const NAVY = '#134c3d';
 
 export const baseOption = {
   textStyle: { fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif', color: INK },
   animationDuration: 400,
-  tooltip: { backgroundColor: 'rgba(14,42,59,.96)', borderWidth: 0, textStyle: { color: '#fff', fontSize: 12 }, extraCssText: 'border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.25)' },
+  tooltip: { backgroundColor: 'rgba(12,58,47,.96)', borderWidth: 0, textStyle: { color: '#fff', fontSize: 12 }, extraCssText: 'border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.25)' },
 };
 
 /** Thin ECharts wrapper: re-applies the option only when its JSON changes. */

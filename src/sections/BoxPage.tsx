@@ -143,7 +143,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
         </div>
         {sizePool.length ? (
           <div class="two">
-            {([['baths', 'Baths', (l: Listing) => l.baths, '#F46A25', box.baths], ['sleeps', 'Sleeps', (l: Listing) => l.sleeps, '#1B998B', box.sleeps]] as const).map(([k, label, pick, color, rng]) => {
+            {([['baths', 'Baths', (l: Listing) => l.baths, '#e9a754', box.baths], ['sleeps', 'Sleeps', (l: Listing) => l.sleeps, '#2a8068', box.sleeps]] as const).map(([k, label, pick, color, rng]) => {
               const groups = groupRevenue(sizePool, pick);
               const best = groups.filter((g) => g.n >= 3).sort((a, b) => b.stats.median - a.stats.median)[0];
               const hl = (v: number) => inRange(v, rng);

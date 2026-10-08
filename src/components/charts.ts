@@ -19,7 +19,7 @@ export function revenueHistogram(listings: Listing[], markers: Marker[]): Opt {
     yAxis: { type: 'value', ...axisCommon, name: 'Listings', minInterval: 1 },
     series: [{
       type: 'bar', barCategoryGap: '8%',
-      data: counts.map((c) => ({ value: c, itemStyle: { color: '#9FD3CC', borderRadius: [3, 3, 0, 0] } })),
+      data: counts.map((c) => ({ value: c, itemStyle: { color: '#a9d4c2', borderRadius: [3, 3, 0, 0] } })),
       markLine: {
         symbol: 'none', silent: true,
         data: markers.map((m, i) => ({
@@ -80,7 +80,7 @@ export function penetrationChart(rows: PenetrationRow[], cutoff: number, selecte
     yAxis: { type: 'category', data: r.map((x) => x.label), ...axisCommon, splitLine: { show: false }, axisLabel: { color: INK, fontSize: 11 } },
     series: [{
       type: 'bar', barMaxWidth: 18,
-      data: r.map((x) => ({ value: +x.pct.toFixed(1), itemStyle: { color: selected.has(x.key) ? TEAL : x.pct >= cutoff ? '#7CC9BF' : '#C9CFD6', borderRadius: [0, 4, 4, 0] } })),
+      data: r.map((x) => ({ value: +x.pct.toFixed(1), itemStyle: { color: selected.has(x.key) ? TEAL : x.pct >= cutoff ? '#8cc7b2' : '#C9CFD6', borderRadius: [0, 4, 4, 0] } })),
       label: { show: true, position: 'right', formatter: (p: any) => `${p.value}%`, color: MUTED, fontSize: 10 },
     }],
   };
@@ -144,7 +144,7 @@ export function vifChart(res: NiceResult, limit: number): Opt {
   const r = res.vifBefore.slice().reverse();
   return {
     grid: { left: 130, right: 40, top: 8, bottom: 28 },
-    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: (ps: any) => { const x = r[ps[0].dataIndex]; return `<b>${x.label}</b><br/>VIF ${x.vif >= 99 ? '∞ (perfectly collinear)' : x.vif.toFixed(2)}${x.dropped ? '<br/><span style="color:#F4B38C">dropped from model</span>' : ''}`; } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: (ps: any) => { const x = r[ps[0].dataIndex]; return `<b>${x.label}</b><br/>VIF ${x.vif >= 99 ? '∞ (perfectly collinear)' : x.vif.toFixed(2)}${x.dropped ? '<br/><span style="color:#f3c98f">dropped from model</span>' : ''}`; } },
     xAxis: { type: 'value', ...axisCommon, name: 'VIF', max: (v: { max: number }) => Math.max(v.max, limit * 1.4) },
     yAxis: { type: 'category', data: r.map((x) => x.label), ...axisCommon, splitLine: { show: false }, axisLabel: { color: INK, fontSize: 11 } },
     series: [{
@@ -165,12 +165,12 @@ export function corrHeatmap(res: NiceResult): Opt {
     tooltip: { formatter: (p: any) => `${labels[p.value[1]]} × ${labels[p.value[0]]}<br/>r = <b>${p.value[2]}</b>` },
     xAxis: { type: 'category', data: labels, axisLabel: { color: INK, fontSize: 10, rotate: 45, interval: 0 }, axisLine: { show: false }, axisTick: { show: false }, splitArea: { show: false } },
     yAxis: { type: 'category', data: labels, inverse: true, axisLabel: { color: INK, fontSize: 10, interval: 0 }, axisLine: { show: false }, axisTick: { show: false } },
-    visualMap: { min: -1, max: 1, show: false, inRange: { color: ['#D7263D', '#FFFFFF', '#17415B'] } },
+    visualMap: { min: -1, max: 1, show: false, inRange: { color: ['#D7263D', '#FFFFFF', '#134c3d'] } },
     series: [{ type: 'heatmap', data, itemStyle: { borderColor: '#fff', borderWidth: 1 }, label: { show: labels.length <= 12, fontSize: 9, color: INK, formatter: (p: any) => (p.value[0] === p.value[1] ? '' : p.value[2]) } }],
   };
 }
 
-export const PIE_COLORS = ['#1B998B', '#F46A25', '#17415B', '#F4D35E', '#7B5EA7', '#D7263D', '#2E86AB', '#8A9A5B'];
+export const PIE_COLORS = ['#2a8068', '#e9a754', '#134c3d', '#F4D35E', '#7B5EA7', '#D7263D', '#2E86AB', '#8A9A5B'];
 
 export function travelerPie(rows: { label: string; pct: number }[]): Opt {
   return {

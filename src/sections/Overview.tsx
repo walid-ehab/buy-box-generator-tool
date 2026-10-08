@@ -6,7 +6,7 @@ import { Callout, Card, Images, NumberField, Section, Segmented, Stat, Text, fmt
 import { boxListings, countBy, groupRevenue, rangeLabel, summarise } from '../lib/analysis';
 import { commit, deleteBox, setPage, store } from '../store';
 
-const COLORS = ['#F46A25', '#17415B', '#7B5EA7', '#D7263D', '#2E86AB', '#8A9A5B'];
+const COLORS = ['#e9a754', '#134c3d', '#7B5EA7', '#D7263D', '#2E86AB', '#8A9A5B'];
 export const boxColor = (i: number) => COLORS[i % COLORS.length];
 
 export function Overview({ edit }: { edit: boolean }) {
@@ -95,13 +95,13 @@ export function Overview({ edit }: { edit: boolean }) {
       <Section id="sec-revenue" eyebrow="Revenue potential" title="Revenue Distribution" intro="Distribution of annual revenue potential across every listing we pulled, with the median, 75th and 90th percentile marked.">
         <Card>
           <Chart option={revenueHistogram(all, [
-            { label: 'Median', value: sum.medianRev, color: '#17415B' },
-            { label: '75th pct', value: sum.p75, color: '#F46A25' },
+            { label: 'Median', value: sum.medianRev, color: '#134c3d' },
+            { label: '75th pct', value: sum.p75, color: '#e9a754' },
             { label: '90th pct', value: sum.p90, color: '#D7263D' },
           ])} height={360} />
           <div class="pctrow">
-            <span><i style={{ background: '#17415B' }} />Median <b>{fmtMoney(sum.medianRev)}</b></span>
-            <span><i style={{ background: '#F46A25' }} />75th percentile <b>{fmtMoney(sum.p75)}</b></span>
+            <span><i style={{ background: '#134c3d' }} />Median <b>{fmtMoney(sum.medianRev)}</b></span>
+            <span><i style={{ background: '#e9a754' }} />75th percentile <b>{fmtMoney(sum.p75)}</b></span>
             <span><i style={{ background: '#D7263D' }} />90th percentile <b>{fmtMoney(sum.p90)}</b></span>
           </div>
         </Card>
@@ -137,14 +137,14 @@ export function Overview({ edit }: { edit: boolean }) {
         {scoped.length ? (
           <>
             <div class="three">
-              <Card title="Bedrooms"><Chart option={countBars(countBy(scoped, (l) => l.beds), 'Bedrooms', '#17415B')} height={240} /></Card>
-              <Card title="Sleeps"><Chart option={countBars(countBy(scoped, (l) => l.sleeps), 'Sleeps', '#1B998B')} height={240} /></Card>
-              <Card title="Baths"><Chart option={countBars(countBy(scoped, (l) => l.baths), 'Baths', '#F46A25')} height={240} /></Card>
+              <Card title="Bedrooms"><Chart option={countBars(countBy(scoped, (l) => l.beds), 'Bedrooms', '#134c3d')} height={240} /></Card>
+              <Card title="Sleeps"><Chart option={countBars(countBy(scoped, (l) => l.sleeps), 'Sleeps', '#2a8068')} height={240} /></Card>
+              <Card title="Baths"><Chart option={countBars(countBy(scoped, (l) => l.baths), 'Baths', '#e9a754')} height={240} /></Card>
             </div>
             <div class="three">
-              <Card title="Revenue by bedrooms"><Chart option={revenueBoxes(groupRevenue(scoped, (l) => l.beds), 'Bedrooms', '#17415B')} height={320} /></Card>
-              <Card title="Revenue by sleeps"><Chart option={revenueBoxes(groupRevenue(scoped, (l) => l.sleeps), 'Sleeps', '#1B998B')} height={320} /></Card>
-              <Card title="Revenue by baths"><Chart option={revenueBoxes(groupRevenue(scoped, (l) => l.baths), 'Baths', '#F46A25')} height={320} /></Card>
+              <Card title="Revenue by bedrooms"><Chart option={revenueBoxes(groupRevenue(scoped, (l) => l.beds), 'Bedrooms', '#134c3d')} height={320} /></Card>
+              <Card title="Revenue by sleeps"><Chart option={revenueBoxes(groupRevenue(scoped, (l) => l.sleeps), 'Sleeps', '#2a8068')} height={320} /></Card>
+              <Card title="Revenue by baths"><Chart option={revenueBoxes(groupRevenue(scoped, (l) => l.baths), 'Baths', '#e9a754')} height={320} /></Card>
             </div>
             <p class="muted small">Box = middle 50% of listings, line = median, whiskers = 1.5×IQR, dots = outliers. The step between neighbouring medians is the revenue effect of one more bedroom / guest / bath.</p>
           </>
