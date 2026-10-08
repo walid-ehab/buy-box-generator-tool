@@ -3,9 +3,10 @@ import { Chart } from '../components/Chart';
 import { corrHeatmap, countBars, revenueBoxes, penetrationChart, prevalenceChart, upliftChart, vifChart } from '../components/charts';
 import { FieldGroup, setText } from '../components/FieldGroup';
 import { MapView } from '../components/MapView';
+import { CutoffChart } from '../components/CutoffChart';
 import { Callout, Card, Images, NumberField, RangeEditor, Section, Segmented, Stat, Text, fmtK, fmtMoney } from '../components/ui';
 import {
-  boxListings, countBy, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
+  boxListings, countBy, mustPoolThreshold, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
 } from '../lib/analysis';
 import { COMPS, LOCATION, NOTES, PROFILE, PROJECTIONS_FIELDS, REGULATIONS, REG_TIERS, TRAVELERS } from '../lib/fields';
 import { uid } from '../lib/defaults';
@@ -26,8 +27,10 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
   const [sizeScope, setSizeScope] = useState<'all' | 'above'>('all');
   const bedPool = useMemo(() => d.listings.filter((l) => inRange(l.beds, box.beds)), [dv, box.id]);
   const sizePool = sizeScope === 'all' ? bedPool : bedPool.filter((l) => l.rev >= s.threshold);
-  const mustThr = box.must.revThreshold ?? s.threshold;
-  const pen = useMemo(() => penetration(listings, d, mustThr), [dv, box.id]);
+  const mustThr = s.threshold;
+  const penThr = mustPoolThreshold(box, s.threshold);
+  const pen = useMemo(() => penetration(listings, d, penThr), [dv, box.id]);
+  const poolN = listings.filter((l) => l.rev >= penThr).length;
   const mustSet = new Set(box.must.selected);
 
   useEffect(() => { if (resolveSelections(box, d, s.threshold)) commit('data'); }, [dv, box.id]);
@@ -185,15 +188,16 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </Section>
 
       {/* ----------------------------------------------------------- must-haves */}
-      <Section id="sec-must" eyebrow="Step 3" title="Must-have amenities" intro={`Share of listings earning ${fmtK(mustThr)}+ that offer each amenity. Anything at or above the cutoff is a must-have — guests (and the algorithm) expect it at this revenue level.`}>
-        <Card title={`Amenity penetration · ${aboveBox.length} listings ≥ ${fmtK(mustThr)}`} actions={
+      <Section id="sec-must" eyebrow="Step 3" title="Must-have amenities" intro={`Share of ${box.must.scope === 'all' ? 'all listings' : `listings earning ${fmtK(mustThr)}+`} that offer each amenity. Drag the orange cutoff line along the chart: every amenity at or beyond it is a must-have — guests (and the algorithm) expect it.`}>
+        <Card title={`Amenity penetration · ${poolN} listings`} actions={
           <div class="row gap">
-            <NumberField label="Revenue ≥" prefix="$" step={1000} width={92} value={mustThr} onChange={(v) => { box.must.revThreshold = Math.max(0, v); commit('data'); }} />
-            <NumberField label="Cutoff" suffix="%" step={5} min={0} max={100} width={60} value={box.must.penetration} onChange={(v) => { box.must.penetration = v; if (!box.must.touched) { /* auto */ } commit('data'); }} />
-            {box.must.revThreshold != null && <button class="btn ghost sm" onClick={() => { box.must.revThreshold = null; commit('data'); }}>Use market threshold</button>}
+            <Segmented value={box.must.scope ?? 'threshold'} onChange={(v) => { box.must.scope = v; box.must.touched = false; commit('data'); }}
+              options={[{ value: 'threshold', label: `≥ ${fmtK(mustThr)} (${aboveBox.length})` }, { value: 'all', label: `All listings (${listings.length})` }]} />
+            <NumberField label="Cutoff" suffix="%" step={5} min={0} max={100} width={60} value={box.must.penetration} onChange={(v) => { box.must.penetration = Math.min(100, Math.max(0, v)); box.must.touched = false; commit('data'); }} />
           </div>}>
-          {aboveBox.length ? <Chart option={penetrationChart(pen, box.must.penetration, mustSet)} height={Math.max(220, pen.length * 26 + 40)} />
-            : <Callout tone="warn">No listings in this buy box reach {fmtMoney(mustThr)} — lower the revenue threshold.</Callout>}
+          {poolN ? <CutoffChart option={penetrationChart(pen, box.must.penetration, mustSet)} height={Math.max(220, pen.length * 26 + 58)} value={box.must.penetration}
+              onChange={(v) => { if (v !== box.must.penetration) { box.must.penetration = v; box.must.touched = false; commit('data'); } }} />
+            : <Callout tone="warn">No listings in this buy box reach {fmtMoney(mustThr)} — switch to “All listings” or lower the threshold on the overview.</Callout>}
           {edit && (
             <div class="chipset">
               <div class="lbl">Selected must-haves {box.must.touched && <button class="link" onClick={() => { box.must.touched = false; commit('data'); }}>reset to cutoff</button>}</div>

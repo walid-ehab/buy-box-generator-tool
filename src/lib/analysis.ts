@@ -134,6 +134,11 @@ export function summarise(listings: Listing[]) {
 
 // ------------------------------------------------------------------ amenities
 
+/** Revenue floor for the must-have penetration pool: the market threshold, or 0 for all listings. */
+export function mustPoolThreshold(box: BuyBox, marketThreshold: number): number {
+  return box.must.scope === 'all' ? 0 : marketThreshold;
+}
+
 export interface PenetrationRow { key: string; label: string; idx: number; n: number; total: number; pct: number }
 
 /** Share of listings with revenue ≥ threshold that offer each amenity. */
@@ -324,7 +329,7 @@ export function resolveSelections(box: BuyBox, data: Dataset, marketThreshold: n
   let changed = false;
   const same = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i]);
   if (!box.must.touched) {
-    const pr = penetration(ls, data, box.must.revThreshold ?? marketThreshold);
+    const pr = penetration(ls, data, mustPoolThreshold(box, marketThreshold));
     const sel = pr.filter((r) => r.n > 0 && r.pct >= box.must.penetration).map((r) => r.key);
     if (!same(sel, box.must.selected)) { box.must.selected = sel; changed = true; }
   }

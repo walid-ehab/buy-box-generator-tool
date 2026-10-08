@@ -41,7 +41,8 @@ export interface BuyBox {
   /** which of the ranges also restrict the listings used in the analytics below */
   filterBy: { beds: boolean; baths: boolean; sleeps: boolean };
   must: {
-    revThreshold: number | null;     // null → market threshold
+    /** which listings the penetration is measured over: those at/above the market threshold (default) or all */
+    scope?: 'threshold' | 'all';
     penetration: number;             // % cutoff
     selected: string[];              // amenity keys
     touched: boolean;                // user has manually changed the selection

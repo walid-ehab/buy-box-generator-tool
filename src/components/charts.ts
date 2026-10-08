@@ -82,7 +82,6 @@ export function penetrationChart(rows: PenetrationRow[], cutoff: number, selecte
       type: 'bar', barMaxWidth: 18,
       data: r.map((x) => ({ value: +x.pct.toFixed(1), itemStyle: { color: selected.has(x.key) ? TEAL : x.pct >= cutoff ? '#7CC9BF' : '#C9CFD6', borderRadius: [0, 4, 4, 0] } })),
       label: { show: true, position: 'right', formatter: (p: any) => `${p.value}%`, color: MUTED, fontSize: 10 },
-      markLine: { symbol: 'none', silent: true, lineStyle: { color: ORANGE, type: 'dashed', width: 2 }, label: { formatter: `${cutoff}% cutoff`, color: ORANGE, fontWeight: 600, position: 'end' }, data: [{ xAxis: cutoff }] },
     }],
   };
 }

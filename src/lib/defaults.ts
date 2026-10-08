@@ -20,7 +20,7 @@ export function newBox(n: number, data: Dataset, threshold: number): BuyBox {
     regions: [],
     beds: gte(beds), baths: gte(baths), sleeps: gte(sleeps),
     filterBy: { beds: true, baths: false, sleeps: false },
-    must: { revThreshold: null, penetration: 50, selected: [], touched: false, notes: {}, images: {} },
+    must: { scope: 'threshold', penetration: 50, selected: [], touched: false, notes: {}, images: {} },
     nice: { topPct: 10, minCount: 8, vifLimit: 5, selected: [], touched: false, notes: {}, images: {} },
     text: {},
     images: {},
