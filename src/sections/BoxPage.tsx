@@ -129,7 +129,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </nav>
 
       {/* ----------------------------------------------------------- size */}
-      <Section id="sec-size" eyebrow="Step 1" title="What size of property?" intro={edit ? 'These charts show baths and sleeps for listings in this buy box’s bedroom range. Use them to pick the ideal bath and sleep count, then set the sizes in the selector underneath.' : undefined}>
+      <Section id="sec-size" eyebrow={edit ? 'Step 1' : undefined} title="Property Size" intro={edit ? 'These charts show baths and sleeps for listings in this buy box’s bedroom range. Use them to pick the ideal bath and sleep count, then set the sizes in the selector underneath.' : undefined}>
         {!edit && (
           <div class="specgrid specrow">
             <div class="spec"><b>{rangeLabel(box.beds)}</b><span>Bedrooms</span></div>
@@ -180,7 +180,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </Section>
 
       {/* ----------------------------------------------------------- region */}
-      <Section id="sec-criteria" eyebrow="Step 2" title="Where?" intro={edit ? 'Draw the region this buy box applies to. Only listings inside it (and matching the filters from step 1) are used in every analysis below.' : undefined}>
+      <Section id="sec-criteria" eyebrow={edit ? 'Step 2' : undefined} title="Ideal location" intro={edit ? 'Draw the region this buy box applies to. Only listings inside it (and matching the filters from step 1) are used in every analysis below.' : undefined}>
         <MapView all={d.listings} threshold={s.threshold} height={540} highlight={box.regions.length || box.filterBy.beds || box.filterBy.baths || box.filterBy.sleeps ? ids : undefined}
           whileDrawing={drawIds} regions={box.regions} editable={edit} fitToRegions onRegions={(r) => { box.regions = r; commit('data'); }} />
         <p class="muted small">{box.regions.length ? `${box.regions.length} region${box.regions.length > 1 ? 's' : ''} drawn.` : 'No region drawn: the whole market is used.'} {listings.length} listing{listings.length === 1 ? '' : 's'} match this buy box.</p>
@@ -189,7 +189,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </Section>
 
       {/* ----------------------------------------------------------- must-haves */}
-      <Section id="sec-must" eyebrow="Step 3" title="Must-have amenities" intro={`Share of ${box.must.scope === 'all' ? 'all listings' : `listings earning ${fmtK(mustThr)}+`} that offer each amenity. Drag the orange cutoff line along the chart: every amenity at or beyond it is a must-have — guests (and the algorithm) expect it.`}>
+      <Section id="sec-must" eyebrow={edit ? 'Step 3' : undefined} title="Must-have amenities" intro={`Share of ${box.must.scope === 'all' ? 'all listings' : `listings earning ${fmtK(mustThr)}+`} that offer each amenity. Drag the orange cutoff line along the chart: every amenity at or beyond it is a must-have — guests (and the algorithm) expect it.`}>
         <Card title={`Amenity penetration · ${poolN} listings`} actions={
           <div class="row gap">
             <Segmented value={box.must.scope ?? 'threshold'} onChange={(v) => { box.must.scope = v; box.must.touched = false; commit('data'); }}
@@ -213,7 +213,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </Section>
 
       {/* ----------------------------------------------------------- nice-to-haves */}
-      <Section id="sec-nice" eyebrow="Step 4" title="Nice-to-have amenities" intro="Must-haves are removed from this analysis. We compare what the best and worst listings offer, then estimate each amenity's isolated effect on revenue after controlling for bedrooms, checking for collinearity and requiring a healthy sample.">
+      <Section id="sec-nice" eyebrow={edit ? 'Step 4' : undefined} title="Nice-to-have amenities" intro="Must-haves are removed from this analysis. We compare what the best and worst listings offer, then estimate each amenity's isolated effect on revenue after controlling for bedrooms, checking for collinearity and requiring a healthy sample.">
         <div class="two">
           <Card title={`Prevalence: top ${box.nice.topPct}% vs bottom ${box.nice.topPct}%`} actions={<NumberField label="Group size" suffix="%" step={5} min={1} max={50} width={56} value={box.nice.topPct} onChange={(v) => { box.nice.topPct = Math.min(50, Math.max(1, v)); commit('data'); }} />}>
             <Chart option={prevalenceChart(prev.rows, box.nice.topPct)} height={Math.max(260, Math.min(14, prev.rows.length) * 36 + 60)} />

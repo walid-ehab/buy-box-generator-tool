@@ -92,7 +92,7 @@ export function Overview({ edit }: { edit: boolean }) {
         <Images edit={edit} images={m.gallery} label="Market gallery" hint="Photos of the area, landmarks, typical streets." onChange={(v) => upd('gallery', v)} />
       </Section>
 
-      <Section id="sec-revenue" eyebrow="Revenue potential" title="How much do listings earn?" intro="Distribution of annual revenue potential across every listing we pulled, with the median, 75th and 90th percentile marked.">
+      <Section id="sec-revenue" eyebrow="Revenue potential" title="Revenue Distribution" intro="Distribution of annual revenue potential across every listing we pulled, with the median, 75th and 90th percentile marked.">
         <Card>
           <Chart option={revenueHistogram(all, [
             { label: 'Median', value: sum.medianRev, color: '#17415B' },
@@ -107,7 +107,7 @@ export function Overview({ edit }: { edit: boolean }) {
         </Card>
       </Section>
 
-      <Section id="sec-threshold" eyebrow="Threshold" title="What counts as a performing listing?" intro="Set the revenue line between “average” and “worth targeting”. It drives the map tiers and the charts below, and is the default for the amenity analysis in each buy box.">
+      <Section id="sec-threshold" eyebrow="Threshold" title="Threshold Selector" intro="Set the revenue line between “average” and “worth targeting”. It drives the map tiers and the charts below, and is the default for the amenity analysis in each buy box.">
         <Card class="thr">
           <div class="thr-top">
             <div class="thr-val">{fmtMoney(s.threshold)}</div>
@@ -124,12 +124,12 @@ export function Overview({ edit }: { edit: boolean }) {
         </Card>
       </Section>
 
-      <Section id="sec-map" eyebrow="Where" title="Where the listings are" intro={`Grey dots are below ${fmtK(s.threshold)}. Everything above it is split into revenue quartiles — red is the top 25%. Click legend entries to hide tiers; hover a dot for details.`}>
+      <Section id="sec-map" eyebrow="Where" title="Property Locations" intro={`Grey dots are below ${fmtK(s.threshold)}. Everything above it is split into revenue quartiles — red is the top 25%. Click legend entries to hide tiers; hover a dot for details.`}>
         <MapView all={all} threshold={s.threshold} height={600}
           outlines={s.boxes.filter((b) => b.regions.length).map((b, i) => ({ name: b.name, regions: b.regions, color: boxColor(i) }))} />
       </Section>
 
-      <Section id="sec-dist" eyebrow="Property shape" title="What are the top performers made of?" intro="Bedroom, sleep and bath mix, and how revenue changes as each one grows.">
+      <Section id="sec-dist" eyebrow="Property shape" title="Property Size Distribution" intro="Bedroom, sleep and bath mix, and how revenue changes as each one grows.">
         <div class="toolbar">
           <span class="lbl">Showing</span>
           <Segmented value={scope} onChange={setScope} options={[{ value: 'all', label: `All listings (${all.length})` }, { value: 'above', label: `≥ ${fmtK(s.threshold)} (${above.length})` }]} />
