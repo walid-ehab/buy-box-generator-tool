@@ -19,7 +19,7 @@ interface Props {
   /** every listing in the market — used for revenue tiers and the percentile in tooltips */
   all: Listing[];
   threshold: number;
-  /** if given, only these are drawn at full strength; others are dimmed */
+  /** if given, only these are drawn (others stay hidden, except faintly while a region is being drawn) */
   highlight?: Set<string>;
   /** polygons of the buy box being edited (drawn in teal) */
   regions?: LatLng[][];
@@ -79,7 +79,7 @@ export function MapView(p: Props) {
   }, [style]);
 
   // ---- listings
-  const sig = `${geo.length}|${p.threshold}|${[...hidden].join()}|${p.highlight ? p.highlight.size : 'all'}`;
+  const sig = `${geo.length}|${p.threshold}|${[...hidden].join()}|${p.highlight ? [...p.highlight].join(',') : 'all'}|${drawing}`;
   useEffect(() => {
     const m = map.current!;
     const g = markers.current!;
@@ -91,6 +91,7 @@ export function MapView(p: Props) {
       const t = tiering.tier[i];
       if (hidden.has(t)) return;
       const dim = hl ? !hl.has(l.id) : false;
+      if (dim && !drawing) return;
       const radius = 4 + 7 * ((l.rev - lo) / (hi - lo || 1));
       const mk = L.circleMarker([l.lat!, l.lng!], {
         radius, color: dim ? '#fff' : '#fff', weight: dim ? 0.3 : 0.8, fillColor: TIER_COLORS[t], fillOpacity: dim ? 0.18 : 0.9, opacity: dim ? 0.2 : 0.9,
@@ -147,6 +148,8 @@ export function MapView(p: Props) {
   }, [regSig, geo]);
 
   // ---- drawing
+  const rubber = useRef<L.Polyline | null>(null);
+  const cursor = useRef<L.LatLng | null>(null);
   useEffect(() => {
     const m = map.current!;
     const d = draft.current!;
@@ -154,8 +157,11 @@ export function MapView(p: Props) {
     if (!drawing) { m.getContainer().style.cursor = ''; m.doubleClickZoom.enable(); return; }
     m.getContainer().style.cursor = 'crosshair';
     m.doubleClickZoom.disable();
+    rubber.current = null;
     if (points.length) {
-      L.polyline(points, { color: '#F46A25', weight: 3, dashArray: '6 4' }).addTo(d);
+      const last = points[points.length - 1];
+      rubber.current = L.polyline([last, cursor.current ?? last], { color: '#F46A25', weight: 3, dashArray: '2 6', interactive: false }).addTo(d);
+      L.polyline(points, { color: '#F46A25', weight: 3, dashArray: '6 4', interactive: false }).addTo(d);
       points.forEach((pt, i) => L.circleMarker(pt, { radius: i === 0 ? 7 : 4, color: '#F46A25', fillColor: '#fff', fillOpacity: 1, weight: 2 }).addTo(d));
     }
   }, [drawing, points]);
@@ -179,9 +185,15 @@ export function MapView(p: Props) {
       const cur = pointsRef.current;
       finish(cur.length > 3 ? cur.slice(0, -1) : cur);
     };
+    const onMove = (e: L.LeafletMouseEvent) => {
+      cursor.current = e.latlng;
+      const cur = pointsRef.current;
+      if (rubber.current && cur.length) rubber.current.setLatLngs([cur[cur.length - 1], e.latlng]);
+    };
     m.on('click', onClick);
     m.on('dblclick', onDbl);
-    return () => { m.off('click', onClick); m.off('dblclick', onDbl); };
+    m.on('mousemove', onMove);
+    return () => { m.off('click', onClick); m.off('dblclick', onDbl); m.off('mousemove', onMove); cursor.current = null; };
   }, [drawing]);
 
   const legend = [0, 1, 2, 3, 4].map((t) => ({ t, label: tierLabel(t), n: tiering.ranges[t]?.n ?? 0 })).filter((x) => x.label);
