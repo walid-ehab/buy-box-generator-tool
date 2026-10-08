@@ -10,7 +10,7 @@ import {
 import { COMPS, LOCATION, NOTES, PROFILE, PROJECTIONS_FIELDS, REGULATIONS, REG_TIERS, TRAVELERS } from '../lib/fields';
 import { uid } from '../lib/defaults';
 import type { BuyBox, Img } from '../lib/types';
-import { commit, setPage, store } from '../store';
+import { commit, deleteBox, setPage, store } from '../store';
 import { boxColor } from './Overview';
 
 const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -59,12 +59,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
     s.boxes.splice(index + 1, 0, c);
     commit('data'); setPage(c.id);
   };
-  const del = () => {
-    if (s.boxes.length < 2) return window.alert('A market needs at least one buy box.');
-    if (!window.confirm(`Delete "${box.name}"?`)) return;
-    s.boxes.splice(index, 1);
-    commit('data'); setPage('overview');
-  };
+  const del = () => deleteBox(box.id);
   const copyRegs = (fromId: string) => {
     const src = s.boxes.find((b) => b.id === fromId);
     if (!src) return;
@@ -95,7 +90,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
             <>
               <input class="h1-input dark" value={box.name} placeholder="Buy box name" onInput={(e) => { box.name = (e.target as HTMLInputElement).value; commit('text'); }} />
               <input class="sub-input dark wide" value={box.tagline} placeholder="One-line description, e.g. “Large pool homes for group trips”" onInput={(e) => { box.tagline = (e.target as HTMLInputElement).value; commit('text'); }} />
-              <div class="row gap"><button class="btn ghost sm" onClick={dup}>Duplicate</button><button class="btn danger sm" onClick={del}>Delete</button></div>
+              <div class="row gap"><button class="btn ghost sm" onClick={dup}>Duplicate</button><button class="btn danger sm" onClick={del}>🗑 Delete this buy box</button></div>
             </>
           ) : (
             <>

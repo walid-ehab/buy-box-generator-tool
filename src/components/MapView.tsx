@@ -5,11 +5,12 @@ import type { LatLng, Listing } from '../lib/types';
 import { computeTiers, TIER_COLORS } from '../lib/analysis';
 import { fmtK, fmtMoney } from './ui';
 
-const STYLES: Record<string, { label: string; url: string; attr: string }> = {
-  dark: { label: 'Dark', url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', attr: '© OpenStreetMap © CARTO' },
-  light: { label: 'Light', url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', attr: '© OpenStreetMap © CARTO' },
-  voyager: { label: 'Voyager', url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', attr: '© OpenStreetMap © CARTO' },
-  satellite: { label: 'Satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr: 'Imagery © Esri' },
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services';
+const STYLES: Record<string, { label: string; url: string; attr: string; native: number }> = {
+  dark: { label: 'Dark', url: `${ESRI}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`, attr: 'Tiles © Esri', native: 16 },
+  light: { label: 'Light', url: `${ESRI}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`, attr: 'Tiles © Esri', native: 16 },
+  streets: { label: 'Streets', url: `${ESRI}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`, attr: 'Tiles © Esri', native: 19 },
+  satellite: { label: 'Satellite', url: `${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`, attr: 'Imagery © Esri', native: 19 },
 };
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
@@ -37,7 +38,7 @@ export function MapView(p: Props) {
   const markers = useRef<L.LayerGroup | null>(null);
   const shapes = useRef<L.LayerGroup | null>(null);
   const draft = useRef<L.LayerGroup | null>(null);
-  const [style, setStyle] = useState('voyager');
+  const [style, setStyle] = useState('light');
   const [hidden, setHidden] = useState<Set<number>>(new Set());
   const [drawing, setDrawing] = useState(false);
   const [points, setPoints] = useState<LatLng[]>([]);
@@ -76,7 +77,7 @@ export function MapView(p: Props) {
     const m = map.current!;
     base.current?.remove();
     const s = STYLES[style];
-    base.current = L.tileLayer(s.url, { attribution: s.attr, maxZoom: 19, subdomains: 'abcd' }).addTo(m);
+    base.current = L.tileLayer(s.url, { attribution: s.attr, maxZoom: 19, maxNativeZoom: s.native }).addTo(m);
     base.current.bringToBack();
   }, [style]);
 

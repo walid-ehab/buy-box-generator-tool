@@ -40,6 +40,16 @@ export function setPage(p: string) {
   commit();
 }
 
+export function deleteBox(id: string) {
+  const s = store.spec;
+  if (!s) return;
+  const b = s.boxes.find((x) => x.id === id);
+  if (!b || !window.confirm(`Delete "${b.name || 'this buy box'}"? This cannot be undone.`)) return;
+  s.boxes = s.boxes.filter((x) => x.id !== id);
+  commit('data');
+  setPage('overview');
+}
+
 export function setMode(m: Mode) { store.mode = m; commit(); }
 
 export function load(bundle: Bundle, mode: Mode) {

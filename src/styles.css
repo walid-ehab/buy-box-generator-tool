@@ -175,3 +175,15 @@ input:focus, textarea:focus, select:focus { outline: 2px solid rgba(27,153,139,.
 .mapper { background: #fff; border-radius: 18px; padding: 28px; box-shadow: var(--shadow); } .mapper h2 { font-size: 28px; }
 .maptable { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px 16px; margin: 16px 0; } .maptable label { display: flex; flex-direction: column; font-size: 12px; font-weight: 600; color: var(--muted); gap: 3px; } .maptable label.bad span { color: var(--red); }
 @media print { .topbar, .subnav, .banner, .map-tools, .pager { display: none; } }
+
+/* ---------- additions */
+.tabwrap { display: inline-flex; align-items: center; border-radius: 8px; } .tabwrap.on { background: rgba(255,255,255,.16); }
+.tabwrap > button.on { background: none; } .tabs .tabx { padding: 4px 8px 4px 0; color: #8aa0b0; font-size: 11px; background: none; } .tabs .tabx:hover { color: #ff8a98; background: none; }
+.boxcard-wrap { position: relative; display: flex; } .boxcard-wrap .boxcard { width: 100%; }
+.bc-del { position: absolute; top: 12px; right: 12px; background: #fff; color: var(--red); border: 1px solid #f1c6cc; border-radius: 8px; font-size: 12px; padding: 3px 9px; font-weight: 600; } .bc-del:hover { background: #fdebee; }
+.pctrow { display: flex; flex-wrap: wrap; gap: 8px 28px; padding: 6px 4px 2px; color: var(--ink2); font-size: 14px; } .pctrow i { display: inline-block; width: 18px; height: 0; border-top: 3px dashed; margin-right: 8px; vertical-align: middle; } .pctrow span:nth-child(1) i { border-color: #17415B; } .pctrow span:nth-child(2) i { border-color: #F46A25; } .pctrow span:nth-child(3) i { border-color: #D7263D; } .pctrow b { color: var(--ink); }
+.thr-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.thr-val { font-family: var(--serif); font-size: 56px; font-weight: 600; line-height: 1; color: var(--orange); }
+.slider { width: 100%; margin: 22px 0 4px; accent-color: var(--orange); height: 28px; cursor: pointer; }
+.thr-scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.thr-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); } @media (max-width: 700px) { .thr-stats { grid-template-columns: 1fr; } }

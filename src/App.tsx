@@ -5,7 +5,7 @@ import { resolveSelections } from './lib/analysis';
 import { Landing } from './sections/Landing';
 import { Overview, boxColor } from './sections/Overview';
 import { BoxPage } from './sections/BoxPage';
-import { commit, downloadHtml, setMode, setPage, store, useStore } from './store';
+import { commit, deleteBox, downloadHtml, setMode, setPage, store, useStore } from './store';
 
 export function App() {
   useStore();
@@ -50,7 +50,10 @@ export function App() {
           <nav class="tabs">
             <button class={page === 'overview' ? 'on' : ''} onClick={() => setPage('overview')}>Overview</button>
             {spec.boxes.map((b, i) => (
-              <button key={b.id} class={page === b.id ? 'on' : ''} style={{ '--c': boxColor(i) } as any} onClick={() => setPage(b.id)}><i />{b.name || `Buy Box ${i + 1}`}</button>
+              <span key={b.id} class={`tabwrap ${page === b.id ? 'on' : ''}`} style={{ '--c': boxColor(i) } as any}>
+                <button class={page === b.id ? 'on' : ''} onClick={() => setPage(b.id)}><i />{b.name || `Buy Box ${i + 1}`}</button>
+                {edit && <button class="tabx" title="Delete this buy box" onClick={() => deleteBox(b.id)}>✕</button>}
+              </span>
             ))}
             {edit && <button class="add" onClick={addBox}>+ Buy box</button>}
           </nav>

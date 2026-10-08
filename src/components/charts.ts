@@ -6,23 +6,27 @@ import { axisCommon, GRID, INK, MUTED, NAVY, ORANGE, TEAL } from './Chart';
 
 type Opt = Record<string, unknown>;
 
-export function revenueHistogram(listings: Listing[], threshold: number): Opt {
+export interface Marker { label: string; value: number; color: string }
+
+export function revenueHistogram(listings: Listing[], markers: Marker[]): Opt {
   const { edges, counts } = histogram(listings.map((l) => l.rev), 28);
   const step = (edges[1] - edges[0]) || 1;
-  const thrIdx = (threshold - edges[0]) / step - 0.5;
+  const idx = (v: number) => Math.max(-0.5, Math.min(counts.length - 0.5, (v - edges[0]) / step - 0.5));
   return {
-    grid: { left: 48, right: 24, top: 28, bottom: 52 },
+    grid: { left: 48, right: 24, top: 70, bottom: 52 },
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: (ps: any) => { const i = ps[0].dataIndex; return `${fmtMoney(edges[i])} – ${fmtMoney(edges[i + 1])}<br/><b>${counts[i]}</b> listings`; } },
     xAxis: { type: 'category', data: counts.map((_, i) => fmtK(edges[i])), ...axisCommon, name: 'Revenue potential (bin start)', nameLocation: 'middle', nameGap: 34, splitLine: { show: false }, axisLabel: { ...axisCommon.axisLabel, interval: 3 } },
     yAxis: { type: 'value', ...axisCommon, name: 'Listings', minInterval: 1 },
     series: [{
       type: 'bar', barCategoryGap: '8%',
-      data: counts.map((c, i) => ({ value: c, itemStyle: { color: edges[i + 1] <= threshold ? '#B0B7C3' : TEAL, borderRadius: [3, 3, 0, 0] } })),
+      data: counts.map((c) => ({ value: c, itemStyle: { color: '#9FD3CC', borderRadius: [3, 3, 0, 0] } })),
       markLine: {
         symbol: 'none', silent: true,
-        lineStyle: { color: ORANGE, width: 2, type: 'dashed' },
-        label: { formatter: `Threshold ${fmtK(threshold)}`, color: ORANGE, fontWeight: 600 },
-        data: [{ xAxis: Math.max(-0.5, Math.min(counts.length - 0.5, thrIdx)) }],
+        data: markers.map((m, i) => ({
+          xAxis: idx(m.value),
+          lineStyle: { color: m.color, width: 2, type: 'dashed' },
+          label: { formatter: `${m.label}\n${fmtK(m.value)}`, color: m.color, fontWeight: 700, fontSize: 11, position: 'end', offset: [0, i % 2 ? -34 : 0], lineHeight: 14 },
+        })),
       },
     }],
   };
