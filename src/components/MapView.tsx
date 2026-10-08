@@ -21,6 +21,8 @@ interface Props {
   threshold: number;
   /** if given, only these listings are drawn (all of them reappear while a region is being drawn) */
   highlight?: Set<string>;
+  /** listings to show while a region is being drawn (e.g. everything that passes the size filters, ignoring the region) */
+  whileDrawing?: Set<string>;
   /** polygons of the buy box being edited (drawn in teal) */
   regions?: LatLng[][];
   /** outlines of other buy boxes (overview) */
@@ -79,14 +81,14 @@ export function MapView(p: Props) {
   }, [style]);
 
   // ---- listings
-  const sig = `${geo.length}|${p.threshold}|${[...hidden].join()}|${p.highlight ? [...p.highlight].join(',') : 'all'}|${drawing}`;
+  const sig = `${geo.length}|${p.threshold}|${[...hidden].join()}|${p.highlight ? [...p.highlight].join(',') : 'all'}|${p.whileDrawing ? p.whileDrawing.size : ''}|${drawing}`;
   useEffect(() => {
     const m = map.current!;
     const g = markers.current!;
     g.clearLayers();
     const revs = geo.map((l) => l.rev);
     const lo = Math.min(...revs), hi = Math.max(...revs);
-    const hl = drawing ? undefined : propsRef.current.highlight; // while drawing, show every listing at full strength
+    const hl = drawing ? (propsRef.current.whileDrawing ?? propsRef.current.highlight) : propsRef.current.highlight;
     geo.forEach((l, i) => {
       const t = tiering.tier[i];
       if (hidden.has(t)) return;

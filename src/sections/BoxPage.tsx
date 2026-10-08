@@ -21,6 +21,8 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
   const listings = useMemo(() => boxListings(d, box), [dv, box.id]);
   const ids = useMemo(() => new Set(listings.map((l) => l.id)), [listings]);
   const sum = useMemo(() => summarise(listings), [listings]);
+  // while drawing: listings that pass the size filters but sit outside the drawn region(s)
+  const drawIds = useMemo(() => new Set(boxListings(d, { ...box, regions: [] }).map((l) => l.id)), [dv, box.id]);
   const [sizeScope, setSizeScope] = useState<'all' | 'above'>('all');
   const bedPool = useMemo(() => d.listings.filter((l) => inRange(l.beds, box.beds)), [dv, box.id]);
   const sizePool = sizeScope === 'all' ? bedPool : bedPool.filter((l) => l.rev >= s.threshold);
@@ -176,7 +178,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       {/* ----------------------------------------------------------- region */}
       <Section id="sec-criteria" eyebrow="Step 2" title="Where?" intro={edit ? 'Draw the region this buy box applies to. Only listings inside it (and matching the filters from step 1) are used in every analysis below.' : undefined}>
         <MapView all={d.listings} threshold={s.threshold} height={540} highlight={box.regions.length || box.filterBy.beds || box.filterBy.baths || box.filterBy.sleeps ? ids : undefined}
-          regions={box.regions} editable={edit} fitToRegions onRegions={(r) => { box.regions = r; commit('data'); }} />
+          whileDrawing={drawIds} regions={box.regions} editable={edit} fitToRegions onRegions={(r) => { box.regions = r; commit('data'); }} />
         <p class="muted small">{box.regions.length ? `${box.regions.length} region${box.regions.length > 1 ? 's' : ''} drawn.` : 'No region drawn: the whole market is used.'} {listings.length} listing{listings.length === 1 ? '' : 's'} match this buy box.</p>
         {listings.length === 0 && <Callout tone="warn">No listings match this region and size — widen the filters.</Callout>}
         {small && <Callout tone="warn">Only {listings.length} comparable listings. Treat the statistics below as directional.</Callout>}
