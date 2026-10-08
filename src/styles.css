@@ -199,3 +199,5 @@ body { overflow-x: clip; }
 .sizeed-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 22px; } @media (max-width: 760px) { .sizeed-row { grid-template-columns: 1fr; } }
 .sizeed .critrow { border: 0; padding: 0; }
 .toolbar .lbl { margin: 0; }
+
+.sizetop { margin-top: 22px; }
