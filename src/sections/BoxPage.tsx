@@ -84,6 +84,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
   return (
     <div class="boxpage" style={{ '--c': boxColor(index) } as any}>
       <header class="boxhead">
+        <div class="bh-wrap">
         <div class="bh-in">
           <div class="eyebrow"><span class="dot" /> Buy box {index + 1} of {s.boxes.length}</div>
           {edit ? (
@@ -108,6 +109,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
           <Stat label="Median revenue" value={listings.length ? fmtK(sum.medianRev) : '—'} />
           <Stat label="75th percentile" value={listings.length ? fmtK(sum.p75) : '—'} />
           <Stat label="90th percentile" value={listings.length ? fmtK(sum.p90) : '—'} />
+        </div>
         </div>
       </header>
 
