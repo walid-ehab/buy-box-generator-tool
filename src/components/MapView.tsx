@@ -61,7 +61,7 @@ export function MapView(p: Props) {
 
   // ---- init
   useEffect(() => {
-    const m = L.map(el.current!, { preferCanvas: true, zoomControl: true, scrollWheelZoom: true }).setView([39, -98], 4);
+    const m = L.map(el.current!, { preferCanvas: true, zoomControl: true, scrollWheelZoom: true, wheelPxPerZoomLevel: 240, wheelDebounceTime: 30, zoomSnap: 0.25, zoomDelta: 0.5 }).setView([39, -98], 4);
     map.current = m;
     markers.current = L.layerGroup().addTo(m);
     shapes.current = L.layerGroup().addTo(m);
