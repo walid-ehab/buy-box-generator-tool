@@ -6,7 +6,7 @@ import { fmtK } from './ui';
 const clip = (s: string, n = 170) => { const t = s.replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t; };
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-/** Compact summary of the buy box: size, amenities, ICP, any non-default view / waterfront / privacy, and the analyst notes. */
+/** Compact summary of the buy box. Every connected section always has a row ("Not specified" when empty); Setting lists only view / waterfront / privacy values that differ from the defaults. */
 export function Tldr({ box, must, nice, notes, revenue }: { box: BuyBox; revenue?: BuyBox['proj']; must: string[]; nice: { label: string; effect?: number }[]; notes: string[] }) {
   const st = box.setting;
   const eff = effectiveSetting(st);
@@ -22,14 +22,14 @@ export function Tldr({ box, must, nice, notes, revenue }: { box: BuyBox; revenue
   const rows: [string, preact.ComponentChildren][] = [
     ['Size', <b>{rangeLabel(box.beds, 'BR')} · {rangeLabel(box.baths, 'BA')} · Sleeps {rangeLabel(box.sleeps)}</b>],
   ];
-  if (must.length) rows.push(['Must-haves', <>{must.map((m) => <span class="tl-pill">{m}</span>)}</>]);
-  if (nice.length) rows.push(['Nice-to-haves', <>{nice.map((n) => <span class="tl-pill alt">{n.label}{n.effect != null && <em> {n.effect >= 0 ? '+' : ''}{n.effect.toFixed(0)}%</em>}</span>)}</>]);
+  const none = <span class="tl-empty">Not specified</span>;
+  rows.push(['Must-haves', must.length ? <>{must.map((m) => <span class="tl-pill">{m}</span>)}</> : none]);
+  rows.push(['Nice-to-haves', nice.length ? <>{nice.map((n) => <span class="tl-pill alt">{n.label}{n.effect != null && <em> {n.effect >= 0 ? '+' : ''}{n.effect.toFixed(0)}%</em>}</span>)}</> : none]);
   const tiers = ([['low', 'Low'], ['mid', 'Mid'], ['high', 'High']] as const).filter(([k]) => revenue?.[k] != null);
-  if (tiers.length) rows.push(['Revenue potential', <>{tiers.map(([k, l]) => <span class="tl-pill rev">{l} <b>{fmtK(revenue![k]!)}</b></span>)}</>]);
-  if (icp) rows.push(['Traveler ICP', <span>{icp}</span>]);
-  if (setting.length) rows.push(['Setting', <>{setting.map((x) => <span class="tl-pill set">{x}</span>)}</>]);
-
-  if (notes.length) rows.push(['Analyst notes', <ul class="tl-notes">{notes.map((n, i) => <li key={i}>{clip(n, 160)}</li>)}</ul>]);
+  rows.push(['Revenue potential', tiers.length ? <>{tiers.map(([k, l]) => <span class="tl-pill rev">{l} <b>{fmtK(revenue![k]!)}</b></span>)}</> : none]);
+  rows.push(['Traveler ICP', icp ? <span>{icp}</span> : none]);
+  rows.push(['Setting', setting.length ? <>{setting.map((x) => <span class="tl-pill set">{x}</span>)}</> : none]);
+  rows.push(['Analyst notes', notes.length ? <ul class="tl-notes">{notes.map((n, i) => <li key={i}>{clip(n, 160)}</li>)}</ul> : none]);
 
   return (
     <section class="tldr" id="sec-tldr" aria-label="TL;DR">

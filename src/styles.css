@@ -280,3 +280,4 @@ body { overflow-x: clip; }
 .projcard .numwrap.money input { width: 100%; font-size: 20px; font-weight: 600; padding: 7px 10px; } .projcard .numwrap.money { width: 100%; }
 .projcard .hint { margin-top: 8px; } .projcard .hint .link { font-size: inherit; }
 .tl-pill.rev { background: #e3f1ec; } .tl-pill.rev b { font-weight: 800; }
+.tl-empty { color: var(--muted); font-style: italic; font-size: 13px; }
