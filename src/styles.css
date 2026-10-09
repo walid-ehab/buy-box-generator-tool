@@ -271,3 +271,6 @@ body { overflow-x: clip; }
 
 .tl-notes { margin: 0; padding-left: 18px; } .tl-notes li { margin: 1px 0; } .tl-notes li::marker { color: var(--brand-gold); }
 .subnav button[hidden] { display: none; }
+
+.tl-note { margin: 8px 2px 0; font-size: 12.5px; color: var(--muted); } .tl-note b { color: var(--ink2); }
+.empty { font-style: italic; margin: 6px 0 0; }

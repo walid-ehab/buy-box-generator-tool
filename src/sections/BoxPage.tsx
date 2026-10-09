@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import { Chart } from '../components/Chart';
 import { PIE_COLORS, travelerPie, corrHeatmap, countBars, revenueBoxes, penetrationChart, prevalenceChart, upliftChart, vifChart } from '../components/charts';
 import { FieldGroup, setText } from '../components/FieldGroup';
@@ -6,7 +6,7 @@ import { MapView } from '../components/MapView';
 import { CutoffChart } from '../components/CutoffChart';
 import { SettingEditor, hasSetting } from '../components/SettingEditor';
 import { Tldr } from '../components/Tldr';
-import { AnalystNotes, getNotes, hasNotes } from '../components/AnalystNotes';
+import { AnalystNotes, getNotes } from '../components/AnalystNotes';
 import { Callout, Card, Images, NumberField, RangeEditor, Section, Segmented, Stat, Text, fmtK, fmtMoney } from '../components/ui';
 import {
   boxListings, countBy, mustPoolThreshold, travelerMix, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
@@ -38,11 +38,6 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
 
   useEffect(() => { if (resolveSelections(box, d, s.threshold)) commit('data'); }, [dv, box.id]);
 
-  // only list sections that are actually on the page (empty ones are hidden in the generated view)
-  const navRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    navRef.current?.querySelectorAll<HTMLElement>('button[data-target]').forEach((b) => { b.hidden = !document.getElementById(b.dataset.target!); });
-  });
 
   const nice = useMemo(
     () => niceAnalysis(listings, d, { exclude: new Set(box.must.selected), minCount: box.nice.minCount, vifLimit: box.nice.vifLimit }),
@@ -134,15 +129,16 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
         </div>
       </header>
 
-      <nav class="subnav" ref={navRef}>
+      <nav class="subnav">
         {[['sec-tldr', 'TL;DR'], ['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-travelers', 'Traveler demographics'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-notes', 'Analyst notes'], ['sec-proj', 'Projections'], ['sec-uw', 'Underwritten properties']].map(([id, l]) => (
-          <button data-target={id} onClick={() => jump(id)}>{l}</button>
+          <button onClick={() => jump(id)}>{l}</button>
         ))}
       </nav>
 
       <Tldr box={box} notes={getNotes(box).map((n) => n.text.trim()).filter(Boolean)}
         must={box.must.selected.map((k) => d.amenities.find((x) => x.key === k)?.label ?? k)}
         nice={niceSel.map((k) => ({ label: d.amenities.find((x) => x.key === k)?.label ?? k, effect: ranked.find((r) => r.key === k)?.effect }))} />
+      {edit && <p class="tl-note"><b>Note for editors:</b> the TL;DR is built from the sections below. Update the connected sections (Size, Amenities, Property style, Traveler demographics and Analyst notes) to see changes here.</p>}
 
       {/* ----------------------------------------------------------- size */}
       <Section id="sec-size" eyebrow="Size" title="Property Size" intro={edit ? 'These charts show baths and sleeps for listings in this buy box’s bedroom range. Use them to pick the ideal bath and sleep count, then set the sizes in the selector underneath.' : undefined}>
@@ -314,12 +310,11 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
           </Card>
         ) : edit ? <Callout tone="info">The uploaded data has no review-percentage columns (headers starting with <code>pct_</code>), so there is no traveler mix chart. You can still describe the traveler profile below.</Callout> : null}
       </FieldGroup>
-      {(edit || COMPS.some((c) => c.fields.some((f) => (box.text[f.id] ?? '').trim()) || c.images!.some((i) => (box.images[i.id] ?? []).length))) && (
+      {/* sections stay in the generated page even when empty */}
         <section class="section" id="sec-comps">
           <header class="section-head"><div class="eyebrow">Comparables</div><h2>Comp sets</h2></header>
           <div class="two">{COMPS.map((c) => <Card key={c.id} title={c.title}><FieldGroup box={box} def={c} edit={edit} bare /></Card>)}</div>
         </section>
-      )}
 
       <FieldGroup box={box} def={REGULATIONS} edit={edit}>
         {edit ? (
@@ -341,7 +336,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
           </div>
         ) : tier ? <div class={`tierbadge ${tier.v}`}>{tier.emoji} {tier.label}</div> : null}
       </FieldGroup>
-      {(edit || hasNotes(box)) && (
+      {(
         <section class="section" id="sec-notes">
           <header class="section-head"><div class="eyebrow">Analyst</div><h2>Analyst notes & insights</h2></header>
           <AnalystNotes box={box} edit={edit} />
@@ -349,7 +344,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       )}
 
       {/* ----------------------------------------------------------- projections */}
-      {(edit || PROJECTIONS_FIELDS.some((f) => box.text[f.id])) && (
+      {(
       <Section id="sec-proj" eyebrow="Numbers" title="Projections" intro={edit ? 'Revenue and price targets for underwriters.' : undefined}>
         <div class="proj">
           {PROJECTIONS_FIELDS.map((f) => (
@@ -362,10 +357,11 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
             ) : null
           ))}
         </div>
+        {!edit && !PROJECTIONS_FIELDS.some((f) => box.text[f.id]) && <p class="muted empty">Nothing added yet.</p>}
       </Section>
       )}
 
-      {(edit || box.uw.length > 0) && (
+      {(
       <Section id="sec-uw" eyebrow="Underwriting" title="Underwritten properties" intro={edit ? 'Properties already underwritten against this buy box: the link, the numbers, and why each fits.' : undefined}>
         <div class="uwgrid">
           {box.uw.map((u, i) => (
@@ -389,6 +385,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
           ))}
           {edit && <button class="addcard" onClick={() => { box.uw.push({ title: '', link: '', note: '', revenue: '', price: '' }); commit('text'); }}>+ Add underwritten property</button>}
         </div>
+        {!edit && !box.uw.length && <p class="muted empty">Nothing added yet.</p>}
       </Section>
       )}
 

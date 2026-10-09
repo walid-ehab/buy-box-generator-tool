@@ -11,7 +11,8 @@ export function FieldGroup({ box, def, edit, children, bare, custom }: { box: Bu
   const allFieldIds = [...def.fields, ...(def.subgroups?.flatMap((s) => s.fields) ?? [])].map((f) => f.id);
   const any = hasText(allFieldIds) || hasImg((def.images ?? []).map((i) => i.id));
   const customAny = !!def.blocks?.some((b) => b.custom && custom?.[b.custom]?.filled());
-  if (!edit && !any && !customAny && !children) return null;
+  const empty = !edit && !any && !customAny && !children;
+  const emptyMsg = <p class="muted empty">Nothing added yet.</p>;
 
   const renderField = (f: GroupDef['fields'][number], noLabel = false) =>
     f.link ? (
@@ -59,10 +60,11 @@ export function FieldGroup({ box, def, edit, children, bare, custom }: { box: Bu
       ))}
     </>
   );
+  if (empty && bare) return emptyMsg;
   return bare ? body : (
     <section class="section" id={`sec-${def.id}`}>
       <header class="section-head"><div class="eyebrow">{def.eyebrow}</div><h2>{def.title}</h2>{def.intro && <p class="lede">{def.intro}</p>}</header>
-      {body}
+      {empty ? emptyMsg : body}
     </section>
   );
 }

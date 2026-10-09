@@ -42,6 +42,7 @@ export function AnalystNotes({ box, edit }: { box: BuyBox; edit: boolean }) {
 
   if (!edit) {
     const shown = notes.filter((n) => n.text.trim() || n.images.length);
+    if (!shown.length) return <p class="muted empty">Nothing added yet.</p>;
     return (
       <ul class="notelist">
         {shown.map((n, i) => (
