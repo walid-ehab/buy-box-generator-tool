@@ -5,6 +5,7 @@ import { FieldGroup, setText } from '../components/FieldGroup';
 import { MapView } from '../components/MapView';
 import { CutoffChart } from '../components/CutoffChart';
 import { SettingEditor, hasSetting } from '../components/SettingEditor';
+import { Tldr } from '../components/Tldr';
 import { Callout, Card, Images, NumberField, RangeEditor, Section, Segmented, Stat, Text, fmtK, fmtMoney } from '../components/ui';
 import {
   boxListings, countBy, mustPoolThreshold, travelerMix, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
@@ -127,10 +128,14 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </header>
 
       <nav class="subnav">
-        {[['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-proj', 'Projections']].map(([id, l]) => (
+        {[['sec-tldr', 'TL;DR'], ['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-proj', 'Projections']].map(([id, l]) => (
           <button onClick={() => jump(id)}>{l}</button>
         ))}
       </nav>
+
+      <Tldr box={box}
+        must={box.must.selected.map((k) => d.amenities.find((x) => x.key === k)?.label ?? k)}
+        nice={niceSel.map((k) => ({ label: d.amenities.find((x) => x.key === k)?.label ?? k, effect: ranked.find((r) => r.key === k)?.effect }))} />
 
       {/* ----------------------------------------------------------- size */}
       <Section id="sec-size" eyebrow="Size" title="Property Size" intro={edit ? 'These charts show baths and sleeps for listings in this buy box’s bedroom range. Use them to pick the ideal bath and sleep count, then set the sizes in the selector underneath.' : undefined}>
