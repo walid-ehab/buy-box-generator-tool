@@ -131,7 +131,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </header>
 
       <nav class="subnav">
-        {[['sec-tldr', 'TL;DR'], ['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-travelers', 'Traveler demographics'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-notes', 'Analyst notes'], ['sec-proj', 'Projections'], ['sec-uw', 'Underwritten properties']].map(([id, l]) => (
+        {[['sec-tldr', 'TL;DR'], ['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-travelers', 'Traveler demographics'], ['sec-regs', 'Regulations'], ['sec-notes', 'Analyst notes'], ['sec-comps', 'Comps'], ['sec-proj', 'Projections'], ['sec-uw', 'Underwritten properties']].map(([id, l]) => (
           <button onClick={() => jump(id)}>{l}</button>
         ))}
       </nav>
@@ -311,11 +311,6 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
           </Card>
         ) : edit ? <Callout tone="info">The uploaded data has no review-percentage columns (headers starting with <code>pct_</code>), so there is no traveler mix chart. You can still describe the traveler profile below.</Callout> : null}
       </FieldGroup>
-      {/* sections stay in the generated page even when empty */}
-        <section class="section" id="sec-comps">
-          <header class="section-head"><div class="eyebrow">Comparables</div><h2>Comp sets</h2></header>
-          <div class="two">{COMPS.map((c) => <Card key={c.id} title={c.title}><FieldGroup box={box} def={c} edit={edit} bare /></Card>)}</div>
-        </section>
 
       <FieldGroup box={box} def={REGULATIONS} edit={edit}>
         {edit ? (
@@ -345,6 +340,12 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       )}
 
       {/* ----------------------------------------------------------- projections */}
+      {/* sections stay in the generated page even when empty */}
+        <section class="section" id="sec-comps">
+          <header class="section-head"><div class="eyebrow">Comparables</div><h2>Comp sets</h2></header>
+          <div class="two">{COMPS.map((c) => <Card key={c.id} title={c.title}><FieldGroup box={box} def={c} edit={edit} bare /></Card>)}</div>
+        </section>
+
       {(
       <Section id="sec-proj" eyebrow="Numbers" title="Projections" intro={edit ? 'Low, mid and high revenue potential for this buy box, and the purchase price to target.' : undefined}>
         <Projections box={box} edit={edit} onSuggest={suggest} suggestLabel={`Fill from data: P50 / P75 / P90 of listings ≥ ${fmtK(mustThr)}`} />
