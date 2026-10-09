@@ -5,8 +5,8 @@ import { effectiveSetting } from './SettingEditor';
 const clip = (s: string, n = 170) => { const t = s.replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t; };
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-/** Compact summary of the buy box: size, amenities, ICP and any non-default view / waterfront / privacy. */
-export function Tldr({ box, must, nice }: { box: BuyBox; must: string[]; nice: { label: string; effect?: number }[] }) {
+/** Compact summary of the buy box: size, amenities, ICP, any non-default view / waterfront / privacy, and the analyst notes. */
+export function Tldr({ box, must, nice, notes }: { box: BuyBox; must: string[]; nice: { label: string; effect?: number }[]; notes: string[] }) {
   const st = box.setting;
   const eff = effectiveSetting(st);
   const setting: string[] = [];
@@ -25,6 +25,8 @@ export function Tldr({ box, must, nice }: { box: BuyBox; must: string[]; nice: {
   if (nice.length) rows.push(['Nice-to-haves', <>{nice.map((n) => <span class="tl-pill alt">{n.label}{n.effect != null && <em> {n.effect >= 0 ? '+' : ''}{n.effect.toFixed(0)}%</em>}</span>)}</>]);
   if (icp) rows.push(['Traveler ICP', <span>{icp}</span>]);
   if (setting.length) rows.push(['Setting', <>{setting.map((x) => <span class="tl-pill set">{x}</span>)}</>]);
+
+  if (notes.length) rows.push(['Analyst notes', <ul class="tl-notes">{notes.map((n, i) => <li key={i}>{clip(n, 160)}</li>)}</ul>]);
 
   return (
     <section class="tldr" id="sec-tldr" aria-label="TL;DR">

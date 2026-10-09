@@ -268,3 +268,6 @@ body { overflow-x: clip; }
 .notelist { margin: 0; padding: 0 0 0 4px; list-style: none; display: grid; gap: 14px; }
 .notelist li { position: relative; padding-left: 22px; } .notelist li::before { content: ''; position: absolute; left: 4px; top: .62em; width: 8px; height: 8px; border-radius: 50%; background: var(--brand-gold); }
 .notelist li .textfield { margin: 0; } .notelist li .images { margin: 8px 0 0; }
+
+.tl-notes { margin: 0; padding-left: 18px; } .tl-notes li { margin: 1px 0; } .tl-notes li::marker { color: var(--brand-gold); }
+.subnav button[hidden] { display: none; }

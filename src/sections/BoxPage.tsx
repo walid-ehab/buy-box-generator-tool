@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { Chart } from '../components/Chart';
 import { PIE_COLORS, travelerPie, corrHeatmap, countBars, revenueBoxes, penetrationChart, prevalenceChart, upliftChart, vifChart } from '../components/charts';
 import { FieldGroup, setText } from '../components/FieldGroup';
@@ -6,7 +6,7 @@ import { MapView } from '../components/MapView';
 import { CutoffChart } from '../components/CutoffChart';
 import { SettingEditor, hasSetting } from '../components/SettingEditor';
 import { Tldr } from '../components/Tldr';
-import { AnalystNotes, hasNotes } from '../components/AnalystNotes';
+import { AnalystNotes, getNotes, hasNotes } from '../components/AnalystNotes';
 import { Callout, Card, Images, NumberField, RangeEditor, Section, Segmented, Stat, Text, fmtK, fmtMoney } from '../components/ui';
 import {
   boxListings, countBy, mustPoolThreshold, travelerMix, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
@@ -37,6 +37,12 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
   const mustSet = new Set(box.must.selected);
 
   useEffect(() => { if (resolveSelections(box, d, s.threshold)) commit('data'); }, [dv, box.id]);
+
+  // only list sections that are actually on the page (empty ones are hidden in the generated view)
+  const navRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    navRef.current?.querySelectorAll<HTMLElement>('button[data-target]').forEach((b) => { b.hidden = !document.getElementById(b.dataset.target!); });
+  });
 
   const nice = useMemo(
     () => niceAnalysis(listings, d, { exclude: new Set(box.must.selected), minCount: box.nice.minCount, vifLimit: box.nice.vifLimit }),
@@ -128,13 +134,13 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
         </div>
       </header>
 
-      <nav class="subnav">
-        {[['sec-tldr', 'TL;DR'], ['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-proj', 'Projections']].map(([id, l]) => (
-          <button onClick={() => jump(id)}>{l}</button>
+      <nav class="subnav" ref={navRef}>
+        {[['sec-tldr', 'TL;DR'], ['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-notes', 'Analyst notes'], ['sec-proj', 'Projections']].map(([id, l]) => (
+          <button data-target={id} onClick={() => jump(id)}>{l}</button>
         ))}
       </nav>
 
-      <Tldr box={box}
+      <Tldr box={box} notes={getNotes(box).map((n) => n.text.trim()).filter(Boolean)}
         must={box.must.selected.map((k) => d.amenities.find((x) => x.key === k)?.label ?? k)}
         nice={niceSel.map((k) => ({ label: d.amenities.find((x) => x.key === k)?.label ?? k, effect: ranked.find((r) => r.key === k)?.effect }))} />
 
