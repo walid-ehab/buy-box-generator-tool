@@ -50,7 +50,7 @@ export const REGULATIONS: GroupDef = {
 };
 
 export const PROFILE: GroupDef = {
-  id: 'profile', eyebrow: 'Property profile', title: 'What the property should look like',
+  id: 'profile', eyebrow: 'Style', title: 'Property Style',
   fields: [
     { id: 'style', label: 'Architectural style', rows: 2, placeholder: 'e.g. Both modern and older houses work.' },
     { id: 'backyard', label: 'Backyard size', rows: 2, placeholder: 'e.g. Big enough for a pool, hot tub and fire pit.' },

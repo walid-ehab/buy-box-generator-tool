@@ -126,7 +126,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </header>
 
       <nav class="subnav">
-        {[['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-proj', 'Projections']].map(([id, l]) => (
+        {[['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-proj', 'Projections']].map(([id, l]) => (
           <button onClick={() => jump(id)}>{l}</button>
         ))}
       </nav>
