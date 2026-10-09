@@ -29,14 +29,11 @@ export function newBox(n: number, data: Dataset, threshold: number): BuyBox {
   };
 }
 
-export function niceThreshold(data: Dataset): number {
-  const m = summarise(data.listings).medianRev;
-  const step = m >= 50000 ? 5000 : 1000;
-  return Math.max(0, Math.round(m / step) * step);
-}
+/** Default revenue threshold for a new market; change it on the overview. */
+export const DEFAULT_THRESHOLD = 80000;
 
 export function newSpec(data: Dataset, guess: { name: string; region: string }): Spec {
-  const threshold = niceThreshold(data);
+  const threshold = DEFAULT_THRESHOLD;
   return {
     version: 1,
     threshold,
