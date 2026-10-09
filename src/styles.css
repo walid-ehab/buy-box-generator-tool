@@ -239,3 +239,11 @@ body { overflow-x: clip; }
 /* gold is for fills and buttons; for small text on light backgrounds use a darkened mix */
 .boxpage .section-head .eyebrow, .bc-go { color: color-mix(in srgb, var(--c) 62%, #000); }
 .boxpage .section-head .eyebrow .dot { background: var(--c); }
+
+/* ---------- view / waterfront / privacy choices */
+.settinged, .settingview { display: grid; gap: 16px; }
+.setrow { display: grid; gap: 6px; } .setrow .lbl { margin: 0; }
+.viewtypes { margin-top: 6px; padding: 12px 14px; background: #f3f6f4; border-radius: 10px; display: grid; gap: 10px; }
+.viewtype { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; min-height: 36px; } .viewtype .check { margin: 0; min-width: 130px; font-size: 14px; color: var(--ink); }
+.pill.big { font-size: 14px; padding: 5px 14px; margin: 0 6px 6px 0; }
+.setrow .segmented { justify-self: start; }

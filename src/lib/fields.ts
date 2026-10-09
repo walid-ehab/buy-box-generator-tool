@@ -6,7 +6,7 @@ export interface GroupDef {
   images?: { id: string; label: string; hint?: string }[];
   subgroups?: { title: string; fields: FieldDef[] }[];
   /** if set, the group renders as side-by-side blocks: text fields on the left, their own reference images on the right */
-  blocks?: { title: string; fields: string[]; images: string }[];
+  blocks?: { title: string; fields: string[]; images: string; custom?: string }[];
 }
 
 export const REG_TIERS = [
@@ -54,9 +54,6 @@ export const PROFILE: GroupDef = {
   fields: [
     { id: 'style', label: 'Architectural style', rows: 2, placeholder: 'e.g. Both modern and older houses work.' },
     { id: 'backyard', label: 'Backyard size', rows: 2, placeholder: 'e.g. Big enough for a pool, hot tub and fire pit.' },
-    { id: 'view', label: 'View', rows: 1, single: true, placeholder: 'n/a' },
-    { id: 'waterfront', label: 'Waterfront', rows: 1, single: true, placeholder: 'n/a' },
-    { id: 'privacy', label: 'Privacy / seclusion', rows: 1, single: true, placeholder: 'e.g. Fenced backyard' },
   ],
   images: [
     { id: 'styleImages', label: 'Reference images' },
@@ -66,7 +63,7 @@ export const PROFILE: GroupDef = {
   blocks: [
     { title: 'Architectural style', fields: ['style'], images: 'styleImages' },
     { title: 'Backyard', fields: ['backyard'], images: 'backyardImages' },
-    { title: 'View, waterfront & privacy', fields: ['view', 'waterfront', 'privacy'], images: 'geoImages' },
+    { title: 'View, waterfront & privacy', fields: [], images: 'geoImages', custom: 'setting' },
   ],
 };
 

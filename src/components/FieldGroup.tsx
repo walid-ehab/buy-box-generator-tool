@@ -5,12 +5,13 @@ import { Images, LinkField, Text } from './ui';
 
 export function setText(box: BuyBox, id: string, v: string) { box.text[id] = v; commit('text'); }
 
-export function FieldGroup({ box, def, edit, children, bare }: { box: BuyBox; def: GroupDef; edit: boolean; children?: preact.ComponentChildren; bare?: boolean }) {
+export function FieldGroup({ box, def, edit, children, bare, custom }: { box: BuyBox; def: GroupDef; edit: boolean; children?: preact.ComponentChildren; bare?: boolean; custom?: Record<string, { render: () => preact.ComponentChildren; filled: () => boolean }> }) {
   const hasText = (ids: string[]) => ids.some((id) => (box.text[id] ?? '').trim());
   const hasImg = (ids: string[]) => ids.some((id) => (box.images[id] ?? []).length);
   const allFieldIds = [...def.fields, ...(def.subgroups?.flatMap((s) => s.fields) ?? [])].map((f) => f.id);
   const any = hasText(allFieldIds) || hasImg((def.images ?? []).map((i) => i.id));
-  if (!edit && !any && !children) return null;
+  const customAny = !!def.blocks?.some((b) => b.custom && custom?.[b.custom]?.filled());
+  if (!edit && !any && !customAny && !children) return null;
 
   const renderField = (f: GroupDef['fields'][number], noLabel = false) =>
     f.link ? (
@@ -24,12 +25,14 @@ export function FieldGroup({ box, def, edit, children, bare }: { box: BuyBox; de
       {def.blocks.map((bl) => {
         const fs = bl.fields.map((id) => def.fields.find((f) => f.id === id)!);
         const imgs = box.images[bl.images] ?? [];
-        if (!edit && !hasText(bl.fields) && !imgs.length) return null;
+        const cu = bl.custom ? custom?.[bl.custom] : undefined;
+        const textFilled = bl.custom ? !!cu?.filled() : hasText(bl.fields);
+        if (!edit && !textFilled && !imgs.length) return null;
         return (
-          <div class={`card profileblock ${!edit && !imgs.length ? 'noimg' : ''} ${!edit && !hasText(bl.fields) ? 'notext' : ''}`} key={bl.title}>
+          <div class={`card profileblock ${!edit && !imgs.length ? 'noimg' : ''} ${!edit && !textFilled ? 'notext' : ''}`} key={bl.title}>
             <h3>{bl.title}</h3>
             <div class="pb-grid">
-              {(edit || hasText(bl.fields)) && <div class="pb-text">{fs.map((f) => renderField(f, fs.length === 1))}</div>}
+              {(edit || textFilled) && <div class="pb-text">{cu ? cu.render() : fs.map((f) => renderField(f, fs.length === 1))}</div>}
               <Images edit={edit} images={imgs} label="Reference images" onChange={(v) => { box.images[bl.images] = v; commit('text'); }} />
             </div>
           </div>

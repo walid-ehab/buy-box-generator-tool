@@ -4,6 +4,7 @@ import { PIE_COLORS, travelerPie, corrHeatmap, countBars, revenueBoxes, penetrat
 import { FieldGroup, setText } from '../components/FieldGroup';
 import { MapView } from '../components/MapView';
 import { CutoffChart } from '../components/CutoffChart';
+import { SettingEditor, hasSetting } from '../components/SettingEditor';
 import { Callout, Card, Images, NumberField, RangeEditor, Section, Segmented, Stat, Text, fmtK, fmtMoney } from '../components/ui';
 import {
   boxListings, countBy, mustPoolThreshold, travelerMix, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
@@ -281,7 +282,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
         {!edit && !niceSel.length && <p class="muted">No nice-to-have amenities selected for this buy box.</p>}
       </Section>
 
-      <FieldGroup box={box} def={PROFILE} edit={edit} />
+      <FieldGroup box={box} def={PROFILE} edit={edit} custom={{ setting: { render: () => <SettingEditor box={box} edit={edit} />, filled: () => hasSetting(box.setting) } }} />
       <FieldGroup box={box} def={TRAVELERS} edit={edit}>
         {d.traveler?.length ? (
           <Card title="Who leaves the reviews?" class="mixcard" actions={

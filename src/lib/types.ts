@@ -34,6 +34,16 @@ export interface Range { op: RangeOp; a: number; b: number }
 
 export interface Img { src: string; caption: string }
 
+export type Extent = 'partial' | 'full';
+/** Structured "view / waterfront / privacy" answers (unset = not specified). */
+export interface Setting {
+  view?: boolean;
+  mountain?: Extent;
+  lake?: Extent;
+  waterfront?: boolean;
+  privacy?: 'private' | 'secluded';
+}
+
 export interface UWExample { title: string; link: string; note: string; revenue: string; price: string }
 
 export interface BuyBox {
@@ -66,6 +76,7 @@ export interface BuyBox {
   };
   /** which listings the traveler mix is measured over: those at/above the market threshold (default) or all */
   travelerScope?: 'threshold' | 'all';
+  setting?: Setting;
   text: Record<string, string>;
   images: Record<string, Img[]>;
   uw: UWExample[];
