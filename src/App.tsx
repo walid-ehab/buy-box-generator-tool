@@ -66,7 +66,7 @@ export function App() {
               </>
             ) : (
               <>
-                {store.original && <button class="btn ghost" onClick={() => downloadOriginal(store.original!)} title={`Download the original file: ${store.original.name}`}>⬇ Download original file</button>}
+                {store.original && <button class="btn ghost" onClick={() => downloadOriginal(store.original!)} title={`Download the original file: ${store.original.name}`}>⬇ Download data</button>}
                 <button class="btn ghost" onClick={() => setMode('edit')}>✎ Edit</button>
                 <button class="btn" disabled={busy} onClick={dl}>{busy ? 'Preparing…' : '⬇ Download page'}</button>
               </>

@@ -26,7 +26,7 @@ npm run build    # → dist/index.html (single file)
 
 ## Data & privacy
 
-Generated pages embed the listing data (titles, URLs, coordinates, revenue), any images you add, **and the original uploaded workbook in full (all its sheets)** — viewers get it via “Download original file”, and the page grows by about 1.33× the workbook's size. Host pages privately if any of that is confidential. Drafts are autosaved in the browser's IndexedDB (including the original file) and offered as “Resume last draft”. Map tiles are loaded from CARTO / Esri, so viewers need internet access.
+Generated pages embed the listing data (titles, URLs, coordinates, revenue), any images you add, **and the original uploaded workbook in full (all its sheets)** — viewers get it via “Download data”, and the page grows by about 1.33× the workbook's size. Host pages privately if any of that is confidential. Drafts are autosaved in the browser's IndexedDB (including the original file) and offered as “Resume last draft”. Map tiles are loaded from Esri, so viewers need internet access.
 
 ## Deploy
 
