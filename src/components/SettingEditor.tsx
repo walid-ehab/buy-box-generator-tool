@@ -1,5 +1,6 @@
 import type { BuyBox, Extent, Setting } from '../lib/types';
 import { commit } from '../store';
+import { Text } from './ui';
 
 /** Click an option to select it, click it again to clear it. */
 function Choice<T extends string>({ value, options, onChange }: { value: T | undefined; options: { value: T; label: string }[]; onChange: (v: T | undefined) => void }) {
@@ -16,7 +17,8 @@ const YES_NO = [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] as
 const EXTENT: { value: Extent; label: string }[] = [{ value: 'partial', label: 'Partial' }, { value: 'full', label: 'Full' }];
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export const hasSetting = (s?: Setting) => !!s && (s.view !== undefined || s.waterfront !== undefined || s.privacy !== undefined);
+export const hasSetting = (s?: Setting) =>
+  !!s && (s.view !== undefined || s.waterfront !== undefined || s.privacy !== undefined || !!(s.viewNote || s.waterfrontNote || s.privacyNote)?.trim());
 
 export function SettingEditor({ box, edit }: { box: BuyBox; edit: boolean }) {
   const st: Setting = (box.setting ??= {});
@@ -31,15 +33,19 @@ export function SettingEditor({ box, edit }: { box: BuyBox; edit: boolean }) {
       if (st.lake) viewPills.push(`Lake view · ${cap(st.lake)}`);
       if (!viewPills.length) viewPills.push('Yes');
     } else if (st.view === false) viewPills.push('No');
-    const rows: [string, string[]][] = [
-      ['View', viewPills],
-      ['Waterfront', st.waterfront === undefined ? [] : [st.waterfront ? 'Yes' : 'No']],
-      ['Privacy / seclusion', st.privacy ? [cap(st.privacy)] : []],
+    const rows: [string, string[], string | undefined][] = [
+      ['View', viewPills, st.viewNote],
+      ['Waterfront', st.waterfront === undefined ? [] : [st.waterfront ? 'Yes' : 'No'], st.waterfrontNote],
+      ['Privacy / seclusion', st.privacy ? [cap(st.privacy)] : [], st.privacyNote],
     ];
     return (
       <div class="settingview">
-        {rows.filter(([, v]) => v.length).map(([label, vals]) => (
-          <div class="setrow" key={label}><span class="lbl">{label}</span><div>{vals.map((v) => <span class="pill good big">{v}</span>)}</div></div>
+        {rows.filter(([, v, n]) => v.length || n?.trim()).map(([label, vals, note]) => (
+          <div class="setrow" key={label}>
+            <span class="lbl">{label}</span>
+            {vals.length > 0 && <div>{vals.map((v) => <span class="pill good big">{v}</span>)}</div>}
+            <Text edit={false} value={note ?? ''} onChange={() => {}} class="setnote" />
+          </div>
         ))}
       </div>
     );
@@ -61,14 +67,17 @@ export function SettingEditor({ box, edit }: { box: BuyBox; edit: boolean }) {
             <p class="hint">Tick both if the property has both.</p>
           </div>
         )}
+        <Text edit value={st.viewNote ?? ''} rows={2} placeholder="Note on the view (optional)" onChange={(v) => set({ viewNote: v })} />
       </div>
       <div class="setrow">
         <span class="lbl">Waterfront</span>
         <Choice value={yn(st.waterfront)} options={[...YES_NO]} onChange={(v) => set({ waterfront: fromYn(v) })} />
+        <Text edit value={st.waterfrontNote ?? ''} rows={2} placeholder="Note on the waterfront (optional)" onChange={(v) => set({ waterfrontNote: v })} />
       </div>
       <div class="setrow">
         <span class="lbl">Privacy / seclusion</span>
         <Choice value={st.privacy} options={[{ value: 'private', label: 'Private' }, { value: 'secluded', label: 'Secluded' }]} onChange={(v) => set({ privacy: v })} />
+        <Text edit value={st.privacyNote ?? ''} rows={2} placeholder="Note on privacy / seclusion (optional), e.g. fenced backyard" onChange={(v) => set({ privacyNote: v })} />
       </div>
     </div>
   );

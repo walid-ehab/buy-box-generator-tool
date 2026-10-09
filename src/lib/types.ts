@@ -42,6 +42,9 @@ export interface Setting {
   lake?: Extent;
   waterfront?: boolean;
   privacy?: 'private' | 'secluded';
+  viewNote?: string;
+  waterfrontNote?: string;
+  privacyNote?: string;
 }
 
 export interface UWExample { title: string; link: string; note: string; revenue: string; price: string }
