@@ -256,3 +256,15 @@ body { overflow-x: clip; }
 .tl-row dt { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); } .tl-row dd { margin: 0; line-height: 1.7; }
 .tl-pill { display: inline-block; background: #e3f1ec; color: #0f4a39; border-radius: 99px; padding: 1px 10px; margin: 0 5px 3px 0; font-size: 13px; font-weight: 600; } .tl-pill.alt { background: #f4ecdc; color: #6b4410; } .tl-pill.set { background: #eceae2; color: var(--ink2); } .tl-pill em { font-style: normal; font-weight: 500; opacity: .75; }
 @media (max-width: 640px) { .tl-row { grid-template-columns: 1fr; } }
+
+/* ---------- analyst notes (bullets) */
+.noteed { display: grid; gap: 10px; }
+.noterow { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; align-items: start; background: #fff; border-radius: 12px; padding: 12px 12px 6px 10px; box-shadow: var(--shadow); }
+.noterow .bullet { color: var(--brand-gold); font-size: 26px; line-height: 1.1; text-align: center; }
+.notebody textarea { width: 100%; border: 1px solid #d9d4c7; background: #fffefa; border-radius: 9px; padding: 8px 11px; resize: none; overflow: hidden; line-height: 1.5; }
+.notebody .images { margin: 8px 0 4px; }
+.notectl { display: flex; gap: 4px; } .notectl button { background: #f1efe8; border: 0; border-radius: 7px; width: 28px; height: 28px; font-size: 11px; color: var(--ink2); } .notectl button:disabled { opacity: .3; cursor: default; } .notectl .del:hover { background: #fbdde1; color: var(--red); }
+.addcard.slim { min-height: 0; padding: 10px; justify-self: start; padding-inline: 20px; }
+.notelist { margin: 0; padding: 0 0 0 4px; list-style: none; display: grid; gap: 14px; }
+.notelist li { position: relative; padding-left: 22px; } .notelist li::before { content: ''; position: absolute; left: 4px; top: .62em; width: 8px; height: 8px; border-radius: 50%; background: var(--brand-gold); }
+.notelist li .textfield { margin: 0; } .notelist li .images { margin: 8px 0 0; }

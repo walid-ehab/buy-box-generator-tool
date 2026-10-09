@@ -91,12 +91,6 @@ export const COMPS: GroupDef[] = [
   },
 ];
 
-export const NOTES: GroupDef = {
-  id: 'notes', eyebrow: 'Analyst', title: 'Analyst notes & insights',
-  fields: [{ id: 'notes', label: 'Notes / insights', rows: 6, placeholder: 'Management quality, listing photo quality, demand drivers, design inspiration, things underwriters must check…' }],
-  images: [{ id: 'notesImages', label: 'Images' }],
-};
-
 export const PROJECTIONS_FIELDS: FieldDef[] = [
   { id: 'revRange', label: 'Revenue potential', rows: 1, single: true, placeholder: '$110k – $120k' },
   { id: 'purchasePrice', label: 'Target purchase price', rows: 1, single: true, placeholder: '$600k' },

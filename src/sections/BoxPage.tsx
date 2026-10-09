@@ -6,11 +6,12 @@ import { MapView } from '../components/MapView';
 import { CutoffChart } from '../components/CutoffChart';
 import { SettingEditor, hasSetting } from '../components/SettingEditor';
 import { Tldr } from '../components/Tldr';
+import { AnalystNotes, hasNotes } from '../components/AnalystNotes';
 import { Callout, Card, Images, NumberField, RangeEditor, Section, Segmented, Stat, Text, fmtK, fmtMoney } from '../components/ui';
 import {
   boxListings, countBy, mustPoolThreshold, travelerMix, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
 } from '../lib/analysis';
-import { COMPS, NOTES, PROFILE, PROJECTIONS_FIELDS, REGULATIONS, REG_TIERS, TRAVELERS } from '../lib/fields';
+import { COMPS, PROFILE, PROJECTIONS_FIELDS, REGULATIONS, REG_TIERS, TRAVELERS } from '../lib/fields';
 import { uid } from '../lib/defaults';
 import type { BuyBox, Img, Listing } from '../lib/types';
 import { commit, deleteBox, setPage, store } from '../store';
@@ -334,7 +335,12 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
           </div>
         ) : tier ? <div class={`tierbadge ${tier.v}`}>{tier.emoji} {tier.label}</div> : null}
       </FieldGroup>
-      <FieldGroup box={box} def={NOTES} edit={edit} />
+      {(edit || hasNotes(box)) && (
+        <section class="section" id="sec-notes">
+          <header class="section-head"><div class="eyebrow">Analyst</div><h2>Analyst notes & insights</h2></header>
+          <AnalystNotes box={box} edit={edit} />
+        </section>
+      )}
 
       {/* ----------------------------------------------------------- projections */}
       <Section id="sec-proj" eyebrow="Numbers" title="Projections" intro={edit ? 'Revenue and price targets for underwriters, plus worked underwriting examples.' : undefined}>
