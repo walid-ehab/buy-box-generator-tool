@@ -135,7 +135,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </header>
 
       <nav class="subnav" ref={navRef}>
-        {[['sec-tldr', 'TL;DR'], ['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-notes', 'Analyst notes'], ['sec-proj', 'Projections']].map(([id, l]) => (
+        {[['sec-tldr', 'TL;DR'], ['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-travelers', 'Traveler demographics'], ['sec-comps', 'Comps'], ['sec-regs', 'Regulations'], ['sec-notes', 'Analyst notes'], ['sec-proj', 'Projections'], ['sec-uw', 'Underwritten properties']].map(([id, l]) => (
           <button data-target={id} onClick={() => jump(id)}>{l}</button>
         ))}
       </nav>
@@ -349,7 +349,8 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       )}
 
       {/* ----------------------------------------------------------- projections */}
-      <Section id="sec-proj" eyebrow="Numbers" title="Projections" intro={edit ? 'Revenue and price targets for underwriters, plus worked underwriting examples.' : undefined}>
+      {(edit || PROJECTIONS_FIELDS.some((f) => box.text[f.id])) && (
+      <Section id="sec-proj" eyebrow="Numbers" title="Projections" intro={edit ? 'Revenue and price targets for underwriters.' : undefined}>
         <div class="proj">
           {PROJECTIONS_FIELDS.map((f) => (
             (edit || box.text[f.id]) ? (
@@ -361,7 +362,11 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
             ) : null
           ))}
         </div>
-        <h4 class="ch">Underwriting examples</h4>
+      </Section>
+      )}
+
+      {(edit || box.uw.length > 0) && (
+      <Section id="sec-uw" eyebrow="Underwriting" title="Underwritten properties" intro={edit ? 'Properties already underwritten against this buy box: the link, the numbers, and why each fits.' : undefined}>
         <div class="uwgrid">
           {box.uw.map((u, i) => (
             <Card key={i} class="uw">
@@ -382,10 +387,10 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
               )}
             </Card>
           ))}
-          {edit && <button class="addcard" onClick={() => { box.uw.push({ title: '', link: '', note: '', revenue: '', price: '' }); commit('text'); }}>+ Add underwriting example</button>}
+          {edit && <button class="addcard" onClick={() => { box.uw.push({ title: '', link: '', note: '', revenue: '', price: '' }); commit('text'); }}>+ Add underwritten property</button>}
         </div>
-        {!edit && !box.uw.length && !PROJECTIONS_FIELDS.some((f) => box.text[f.id]) && <p class="muted">No projections entered.</p>}
       </Section>
+      )}
 
       <nav class="pager">
         {prevId ? <button class="btn ghost" onClick={() => setPage(prevId)}>← {nameOf(prevId)}</button> : <span />}
