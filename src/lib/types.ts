@@ -64,6 +64,8 @@ export interface BuyBox {
     notes: Record<string, string>;
     images: Record<string, Img[]>;
   };
+  /** which listings the traveler mix is measured over: those at/above the market threshold (default) or all */
+  travelerScope?: 'threshold' | 'all';
   text: Record<string, string>;
   images: Record<string, Img[]>;
   uw: UWExample[];

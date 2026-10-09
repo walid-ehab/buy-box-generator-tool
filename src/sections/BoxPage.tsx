@@ -79,7 +79,10 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
     commit('text');
   };
 
-  const mix = useMemo(() => travelerMix(listings, d), [dv, box.id]);
+  const tScope = box.travelerScope ?? 'threshold';
+  const tPool = useMemo(() => (tScope === 'all' ? listings : listings.filter((l) => l.rev >= s.threshold)), [dv, box.id]);
+  const tAbove = listings.filter((l) => l.rev >= s.threshold).length;
+  const mix = useMemo(() => travelerMix(tPool, d), [dv, box.id]);
   const small = listings.length > 0 && listings.length < 15;
   const tier = REG_TIERS.find((t) => t.v === box.text.regTier);
   const suggest = () => {
@@ -280,17 +283,21 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
 
       <FieldGroup box={box} def={PROFILE} edit={edit} />
       <FieldGroup box={box} def={TRAVELERS} edit={edit}>
-        {mix ? (
-          <Card title="Who leaves the reviews?" class="mixcard">
-            <div class="mix">
-              <Chart option={travelerPie(mix.rows)} height={320} />
-              <div class="mixlegend">
-                {mix.rows.slice().sort((a, b) => b.pct - a.pct).map((r) => (
-                  <div class="mixrow" key={r.key}><i style={{ background: PIE_COLORS[mix.rows.findIndex((x) => x.key === r.key) % PIE_COLORS.length] }} /><span>{r.label}</span><b>{r.pct.toFixed(1)}%</b></div>
-                ))}
-                <p class="muted small">Share of guest reviews by traveler type across the {mix.n} listings in this buy box, weighted by each listing's review count{mix.reviews ? ` (${mix.reviews.toLocaleString()} reviews)` : ''}.</p>
+        {d.traveler?.length ? (
+          <Card title="Who leaves the reviews?" class="mixcard" actions={
+            <Segmented value={tScope} onChange={(v) => { box.travelerScope = v; commit('data'); }}
+              options={[{ value: 'threshold', label: `≥ ${fmtK(s.threshold)} (${tAbove})` }, { value: 'all', label: `All listings (${listings.length})` }]} />}>
+            {mix ? (
+              <div class="mix">
+                <Chart option={travelerPie(mix.rows)} height={320} />
+                <div class="mixlegend">
+                  {mix.rows.slice().sort((a, b) => b.pct - a.pct).map((r) => (
+                    <div class="mixrow" key={r.key}><i style={{ background: PIE_COLORS[mix.rows.findIndex((x) => x.key === r.key) % PIE_COLORS.length] }} /><span>{r.label}</span><b>{r.pct.toFixed(1)}%</b></div>
+                  ))}
+                  <p class="muted small">Share of guest reviews by traveler type across the {mix.n} {tScope === 'all' ? `listing${mix.n === 1 ? '' : 's'}` : `listing${mix.n === 1 ? '' : 's'} earning ${fmtK(s.threshold)}+`} in this buy box, weighted by each listing's review count{mix.reviews ? ` (${mix.reviews.toLocaleString()} reviews)` : ''}.</p>
+                </div>
               </div>
-            </div>
+            ) : <Callout tone="warn">No listings in this buy box {tScope === 'threshold' ? `earn ${fmtK(s.threshold)}+` : 'have review data'} — switch the toggle or widen the buy box.</Callout>}
           </Card>
         ) : edit ? <Callout tone="info">The uploaded data has no review-percentage columns (headers starting with <code>pct_</code>), so there is no traveler mix chart. You can still describe the traveler profile below.</Callout> : null}
       </FieldGroup>
