@@ -7,7 +7,7 @@ const clip = (s: string, n = 170) => { const t = s.replace(/\s+/g, ' ').trim(); 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** Compact summary of the buy box. Every connected section always has a row ("Not specified" when empty); Setting always lists all three of view / waterfront / privacy. */
-export function Tldr({ box, must, nice, notes, revenue }: { box: BuyBox; revenue?: BuyBox['proj']; must: string[]; nice: { label: string; effect?: number }[]; notes: string[] }) {
+export function Tldr({ box, must, nice, notes, revenue, travelers }: { box: BuyBox; revenue?: BuyBox['proj']; travelers?: { label: string; pct: number }[]; must: string[]; nice: { label: string; effect?: number }[]; notes: string[] }) {
   const st = box.setting;
   const eff = effectiveSetting(st);
   const setting: string[] = [];
@@ -27,7 +27,10 @@ export function Tldr({ box, must, nice, notes, revenue }: { box: BuyBox; revenue
   rows.push(['Nice-to-haves', nice.length ? <>{nice.map((n) => <span class="tl-pill alt">{n.label}{n.effect != null && <em> {n.effect >= 0 ? '+' : ''}{n.effect.toFixed(0)}%</em>}</span>)}</> : none]);
   const tiers = ([['low', 'Low'], ['mid', 'Mid'], ['high', 'High']] as const).filter(([k]) => revenue?.[k] != null);
   rows.push(['Setting', <>{setting.map((x) => <span class="tl-pill set">{x}</span>)}</>]);
-  rows.push(['Traveler ICP', icp ? <span>{icp}</span> : none]);
+  // the analyst's own ICP note replaces the default (the pie-chart groups, highest to lowest)
+  const groups = (travelers ?? []).slice().sort((a, b) => b.pct - a.pct);
+  rows.push(['Traveler ICP', icp ? <span>{icp}</span>
+    : groups.length ? <>{groups.map((g) => <span class="tl-pill trav">{g.label} <b>{g.pct.toFixed(0)}%</b></span>)}</> : none]);
   rows.push(['Revenue potential', tiers.length ? <>{tiers.map(([k, l]) => <span class="tl-pill rev">{l} <b>{fmtK(revenue![k]!)}</b></span>)}</> : none]);
   rows.push(['Analyst notes', notes.length ? <ul class="tl-notes">{notes.map((n, i) => <li key={i}>{clip(n, 160)}</li>)}</ul> : none]);
 

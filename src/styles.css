@@ -281,3 +281,4 @@ body { overflow-x: clip; }
 .projcard .hint { margin-top: 8px; } .projcard .hint .link { font-size: inherit; }
 .tl-pill.rev { background: #e3f1ec; } .tl-pill.rev b { font-weight: 800; }
 .tl-empty { color: var(--muted); font-style: italic; font-size: 13px; }
+.tl-pill.trav { background: #e9eef3; color: #1d3b52; } .tl-pill.trav b { font-weight: 800; }

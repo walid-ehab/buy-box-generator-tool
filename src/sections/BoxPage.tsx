@@ -136,7 +136,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
         ))}
       </nav>
 
-      <Tldr box={box} revenue={box.proj} notes={getNotes(box).map((n) => n.text.trim()).filter(Boolean)}
+      <Tldr box={box} revenue={box.proj} travelers={mix?.rows} notes={getNotes(box).map((n) => n.text.trim()).filter(Boolean)}
         must={box.must.selected.map((k) => d.amenities.find((x) => x.key === k)?.label ?? k)}
         nice={niceSel.map((k) => ({ label: d.amenities.find((x) => x.key === k)?.label ?? k, effect: ranked.find((r) => r.key === k)?.effect }))} />
       {edit && <p class="tl-note"><b>Note:</b> Update the Size, Amenities, Property style, Traveler demographics, Analyst notes and Projections sections to see changes here.</p>}
