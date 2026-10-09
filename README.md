@@ -1,4 +1,4 @@
-# Buy Box Generator
+# Buy Box Builder
 
 Turn a market dataset (the analysts' `Cleaned_Data` sheet) into an interactive, self-contained buy-box web page.
 

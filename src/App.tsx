@@ -90,7 +90,7 @@ export function App() {
       </main>
       <footer class="foot">
         <span>{data.listings.length.toLocaleString()} listings · source: {data.source}</span>
-        <span>Built with the Buy Box Generator</span>
+        <span>Built with the Buy Box Builder</span>
       </footer>
       <Lightbox />
     </div>

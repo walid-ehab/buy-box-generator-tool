@@ -4,6 +4,7 @@ import type { OriginalFile } from './files';
 // Drafts live in IndexedDB (hundreds of MB) instead of localStorage (~5 MB), so the original
 // workbook can be kept too. The big original is stored under its own key and only rewritten
 // when a new file is uploaded; the (small) spec + data is rewritten on every edit.
+// (the database name keeps its old value on purpose: renaming it would orphan drafts saved earlier)
 const DB = 'buybox-generator', STORE = 'kv', LEGACY_KEY = 'buybox-draft-v1';
 
 function open(): Promise<IDBDatabase> {

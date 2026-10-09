@@ -35,7 +35,7 @@ export function Landing() {
   return (
     <div class="landing">
       <div class="land-hero">
-        <div class="eyebrow light">Buy box generator</div>
+        <div class="eyebrow light">Buy box builder</div>
         <h1>Turn a market dataset into an interactive buy box page.</h1>
         <p>Upload the analysed listings, set the thresholds, draw the regions, pick the amenities — and publish a page your underwriting analysts can explore instead of a Word doc.</p>
       </div>
