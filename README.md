@@ -2,7 +2,7 @@
 
 Turn a market dataset (the analysts' `Cleaned_Data` sheet) into an interactive, self-contained buy-box web page.
 
-**Flow:** upload workbook → fill in the overview and each buy box (regions are drawn on the map, amenities are picked from the analytics) → **Generate page** → download a single `.html` file that can be hosted anywhere. A generated page can be re-opened and edited (✎ Edit) and re-exported.
+**Flow:** upload workbook → fill in the overview and each buy box (regions are drawn on the map, amenities are picked from the analytics) → **Build Page** → download a single `.html` file that can be hosted anywhere. A generated page can be re-opened and edited (✎ Edit) and re-exported.
 
 ## What the page contains
 

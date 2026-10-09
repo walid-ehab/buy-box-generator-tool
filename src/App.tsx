@@ -62,7 +62,7 @@ export function App() {
             {edit ? (
               <>
                 <span class="badge edit">Editing</span>
-                <button class="btn primary" onClick={generate}>Generate page ✨</button>
+                <button class="btn primary" onClick={generate}>Build Page</button>
               </>
             ) : (
               <>
@@ -76,7 +76,7 @@ export function App() {
       </header>
       {fresh && !edit && (
         <div class="banner">
-          <span>✅ Page generated. Review it below — then download it as a single HTML file you can host or share.</span>
+          <span>✅ Page built. Review it below — then download it as a single HTML file you can host or share.</span>
           <button class="btn sm" onClick={dl}>Download HTML</button>
           <button class="btn ghost sm" onClick={() => setMode('edit')}>Keep editing</button>
           <button class="x" onClick={() => setFresh(false)}>✕</button>

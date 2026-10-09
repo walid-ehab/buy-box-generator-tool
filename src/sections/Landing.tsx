@@ -55,7 +55,7 @@ export function Landing() {
         <ol class="howto">
           <li><b>Upload</b> the listing data (revenue potential, beds, sleeps, baths, lat/long, HAS_ amenity flags).</li>
           <li><b>Fill in</b> the overview and each buy box — regions are drawn on the map, amenities are chosen from the analytics.</li>
-          <li><b>Generate</b> the page, edit if needed, then download one self-contained HTML file.</li>
+          <li><b>Build</b> the page, edit if needed, then download one self-contained HTML file.</li>
         </ol>
       </div>
     </div>
