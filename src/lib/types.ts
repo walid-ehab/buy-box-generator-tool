@@ -37,7 +37,8 @@ export interface Img { src: string; caption: string }
 export type Extent = 'partial' | 'full';
 /** Structured "view / waterfront / privacy" answers (unset = not specified). */
 export interface Setting {
-  view?: boolean;
+  /** boolean = older saved pages (true → 'yes', false → 'no') */
+  view?: 'yes' | 'no' | 'na' | boolean;
   mountain?: Extent;
   lake?: Extent;
   waterfront?: boolean;
