@@ -83,6 +83,8 @@ export interface BuyBox {
   setting?: Setting;
   /** analyst notes as bullet points, each with its own reference images */
   notes?: { text: string; images: Img[] }[];
+  /** revenue potential projections by tier; price = manual override of the default (high × 100/15) */
+  proj?: { low?: number; mid?: number; high?: number; price?: number };
   text: Record<string, string>;
   images: Record<string, Img[]>;
   uw: UWExample[];

@@ -90,8 +90,3 @@ export const COMPS: GroupDef[] = [
     images: [{ id: 'revCompImages', label: 'Revenue comp screenshots' }],
   },
 ];
-
-export const PROJECTIONS_FIELDS: FieldDef[] = [
-  { id: 'revRange', label: 'Revenue potential', rows: 1, single: true, placeholder: '$110k – $120k' },
-  { id: 'purchasePrice', label: 'Target purchase price', rows: 1, single: true, placeholder: '$600k' },
-];

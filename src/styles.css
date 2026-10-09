@@ -274,3 +274,9 @@ body { overflow-x: clip; }
 
 .tl-note { margin: 8px 2px 0; font-size: 12.5px; color: var(--muted); } .tl-note b { color: var(--ink2); }
 .empty { font-style: italic; margin: 6px 0 0; }
+
+/* ---------- revenue projections */
+.projcard.tier-low { border-left-color: #B0B7C3; } .projcard.tier-mid { border-left-color: var(--brand-gold); } .projcard.tier-high { border-left-color: var(--brand-green); } .projcard.price { border-left-color: var(--ink); }
+.projcard .numwrap.money input { width: 100%; font-size: 20px; font-weight: 600; padding: 7px 10px; } .projcard .numwrap.money { width: 100%; }
+.projcard .hint { margin-top: 8px; } .projcard .hint .link { font-size: inherit; }
+.tl-pill.rev { background: #e3f1ec; } .tl-pill.rev b { font-weight: 800; }

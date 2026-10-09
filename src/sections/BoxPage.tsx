@@ -6,12 +6,13 @@ import { MapView } from '../components/MapView';
 import { CutoffChart } from '../components/CutoffChart';
 import { SettingEditor, hasSetting } from '../components/SettingEditor';
 import { Tldr } from '../components/Tldr';
+import { Projections } from '../components/Projections';
 import { AnalystNotes, getNotes } from '../components/AnalystNotes';
 import { Callout, Card, Images, NumberField, RangeEditor, Section, Segmented, Stat, Text, fmtK, fmtMoney } from '../components/ui';
 import {
   boxListings, countBy, mustPoolThreshold, travelerMix, groupRevenue, inRange, niceAnalysis, penetration, prevalence, rangeLabel, rankNice, resolveSelections, summarise,
 } from '../lib/analysis';
-import { COMPS, PROFILE, PROJECTIONS_FIELDS, REGULATIONS, REG_TIERS, TRAVELERS } from '../lib/fields';
+import { COMPS, PROFILE, REGULATIONS, REG_TIERS, TRAVELERS } from '../lib/fields';
 import { uid } from '../lib/defaults';
 import type { BuyBox, Img, Listing } from '../lib/types';
 import { commit, deleteBox, setPage, store } from '../store';
@@ -92,8 +93,8 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
   const suggest = () => {
     const rs = aboveBox.map((l) => l.rev).sort((a, b) => a - b);
     if (rs.length < 3) return;
-    const q = (p: number) => rs[Math.min(rs.length - 1, Math.floor(p * (rs.length - 1)))];
-    box.text.revRange = `${fmtK(q(0.5))} – ${fmtK(q(0.9))}`;
+    const q = (p: number) => Math.round(rs[Math.min(rs.length - 1, Math.floor(p * (rs.length - 1)))] / 1000) * 1000;
+    box.proj = { ...(box.proj ?? {}), low: q(0.5), mid: q(0.75), high: q(0.9) };
     commit('text');
   };
 
@@ -135,7 +136,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
         ))}
       </nav>
 
-      <Tldr box={box} notes={getNotes(box).map((n) => n.text.trim()).filter(Boolean)}
+      <Tldr box={box} revenue={box.proj} notes={getNotes(box).map((n) => n.text.trim()).filter(Boolean)}
         must={box.must.selected.map((k) => d.amenities.find((x) => x.key === k)?.label ?? k)}
         nice={niceSel.map((k) => ({ label: d.amenities.find((x) => x.key === k)?.label ?? k, effect: ranked.find((r) => r.key === k)?.effect }))} />
       {edit && <p class="tl-note">Update the Size, Amenities, Property style, Traveler demographics and Analyst notes sections to see changes here.</p>}
@@ -345,19 +346,8 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
 
       {/* ----------------------------------------------------------- projections */}
       {(
-      <Section id="sec-proj" eyebrow="Numbers" title="Projections" intro={edit ? 'Revenue and price targets for underwriters.' : undefined}>
-        <div class="proj">
-          {PROJECTIONS_FIELDS.map((f) => (
-            (edit || box.text[f.id]) ? (
-              <div class="projcard" key={f.id}>
-                <div class="lbl">{f.label}</div>
-                {edit ? <input type="text" value={box.text[f.id] ?? ''} placeholder={f.placeholder} onInput={(e) => setText(box, f.id, (e.target as HTMLInputElement).value)} /> : <div class="projval">{box.text[f.id]}</div>}
-                {edit && f.id === 'revRange' && <button class="link" onClick={suggest}>suggest from data (P50–P90 of listings ≥ {fmtK(mustThr)})</button>}
-              </div>
-            ) : null
-          ))}
-        </div>
-        {!edit && !PROJECTIONS_FIELDS.some((f) => box.text[f.id]) && <p class="muted empty">Nothing added yet.</p>}
+      <Section id="sec-proj" eyebrow="Numbers" title="Projections" intro={edit ? 'Low, mid and high revenue potential for this buy box, and the purchase price to target.' : undefined}>
+        <Projections box={box} edit={edit} onSuggest={suggest} suggestLabel={`Fill from data: P50 / P75 / P90 of listings ≥ ${fmtK(mustThr)}`} />
       </Section>
       )}
 

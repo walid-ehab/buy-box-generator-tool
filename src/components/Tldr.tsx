@@ -1,12 +1,13 @@
 import type { BuyBox } from '../lib/types';
 import { rangeLabel } from '../lib/analysis';
 import { effectiveSetting } from './SettingEditor';
+import { fmtK } from './ui';
 
 const clip = (s: string, n = 170) => { const t = s.replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t; };
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** Compact summary of the buy box: size, amenities, ICP, any non-default view / waterfront / privacy, and the analyst notes. */
-export function Tldr({ box, must, nice, notes }: { box: BuyBox; must: string[]; nice: { label: string; effect?: number }[]; notes: string[] }) {
+export function Tldr({ box, must, nice, notes, revenue }: { box: BuyBox; revenue?: BuyBox['proj']; must: string[]; nice: { label: string; effect?: number }[]; notes: string[] }) {
   const st = box.setting;
   const eff = effectiveSetting(st);
   const setting: string[] = [];
@@ -23,6 +24,8 @@ export function Tldr({ box, must, nice, notes }: { box: BuyBox; must: string[]; 
   ];
   if (must.length) rows.push(['Must-haves', <>{must.map((m) => <span class="tl-pill">{m}</span>)}</>]);
   if (nice.length) rows.push(['Nice-to-haves', <>{nice.map((n) => <span class="tl-pill alt">{n.label}{n.effect != null && <em> {n.effect >= 0 ? '+' : ''}{n.effect.toFixed(0)}%</em>}</span>)}</>]);
+  const tiers = ([['low', 'Low'], ['mid', 'Mid'], ['high', 'High']] as const).filter(([k]) => revenue?.[k] != null);
+  if (tiers.length) rows.push(['Revenue potential', <>{tiers.map(([k, l]) => <span class="tl-pill rev">{l} <b>{fmtK(revenue![k]!)}</b></span>)}</>]);
   if (icp) rows.push(['Traveler ICP', <span>{icp}</span>]);
   if (setting.length) rows.push(['Setting', <>{setting.map((x) => <span class="tl-pill set">{x}</span>)}</>]);
 
