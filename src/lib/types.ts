@@ -109,4 +109,5 @@ export interface Spec {
   boxes: BuyBox[];
 }
 
-export interface Bundle { spec: Spec; data: Dataset }
+import type { OriginalFile } from './files';
+export interface Bundle { spec: Spec; data: Dataset; original?: OriginalFile }

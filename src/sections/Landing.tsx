@@ -1,15 +1,19 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { buildDataset, FIELD_LABELS, loadFile, bestSheet } from '../lib/loader';
 import { guessMarket, newSpec } from '../lib/defaults';
 import { sampleDataset } from '../lib/sample';
-import { clearDraft, load, readDraft } from '../store';
+import { load } from '../store';
+import { clearDraft, readDraft } from '../lib/drafts';
+import type { Bundle } from '../lib/types';
+import type { OriginalFile } from '../lib/files';
 import { Callout } from '../components/ui';
 
 export function Landing() {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const [over, setOver] = useState(false);
-  const draft = readDraft();
+  const [draft, setDraft] = useState<Bundle | null>(null);
+  useEffect(() => { void readDraft().then(setDraft); }, []);
 
   const pick = async (f: File) => {
     setErr(''); setBusy(true);
@@ -22,8 +26,9 @@ export function Landing() {
       }
       const data = buildDataset(sheet, sheet.mapping, f.name);
       if (data.listings.length < 5) throw new Error(`Only ${data.listings.length} usable listings were found in “${sheet.name}”.`);
-      clearDraft();
-      load({ spec: newSpec(data, guessMarket(f.name)), data }, 'edit');
+      const original: OriginalFile = { name: f.name, mime: f.type || 'application/octet-stream', data: new Uint8Array(await f.arrayBuffer()) };
+      await clearDraft();
+      load({ spec: newSpec(data, guessMarket(f.name)), data, original }, 'edit');
     } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
   };
 
@@ -45,7 +50,7 @@ export function Landing() {
         {err && <Callout tone="warn">{err}</Callout>}
         <div class="land-alt">
           <button class="btn ghost" onClick={() => { const data = sampleDataset(); load({ spec: newSpec(data, { name: 'Sample Beach Town', region: 'OR' }), data }, 'edit'); }}>Try with sample data</button>
-          {draft && <button class="btn ghost" onClick={() => load(draft, 'edit')}>Resume last draft ({draft.spec.market.name || 'untitled'})</button>}
+          {draft && <button class="btn ghost" onClick={() => load(draft, 'edit', { fromDraft: true })}>Resume last draft ({draft.spec.market.name || 'untitled'})</button>}
         </div>
         <ol class="howto">
           <li><b>Upload</b> the listing data (revenue potential, beds, sleeps, baths, lat/long, HAS_ amenity flags).</li>

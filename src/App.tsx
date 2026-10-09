@@ -5,7 +5,7 @@ import { resolveSelections } from './lib/analysis';
 import { Landing } from './sections/Landing';
 import { Overview, boxColor } from './sections/Overview';
 import { BoxPage } from './sections/BoxPage';
-import { downloadWorkbook } from './lib/exportData';
+import { downloadOriginal } from './lib/files';
 import { commit, deleteBox, downloadHtml, setMode, setPage, store, useStore } from './store';
 
 export function App() {
@@ -66,7 +66,7 @@ export function App() {
               </>
             ) : (
               <>
-                <button class="btn ghost" onClick={() => downloadWorkbook(spec, data)} title="Excel workbook: market data + one sheet per buy box">⬇ Download data</button>
+                {store.original && <button class="btn ghost" onClick={() => downloadOriginal(store.original!)} title={`Download the original file: ${store.original.name}`}>⬇ Download original file</button>}
                 <button class="btn ghost" onClick={() => setMode('edit')}>✎ Edit</button>
                 <button class="btn" disabled={busy} onClick={dl}>{busy ? 'Preparing…' : '⬇ Download page'}</button>
               </>
