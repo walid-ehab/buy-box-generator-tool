@@ -138,7 +138,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       <Tldr box={box} notes={getNotes(box).map((n) => n.text.trim()).filter(Boolean)}
         must={box.must.selected.map((k) => d.amenities.find((x) => x.key === k)?.label ?? k)}
         nice={niceSel.map((k) => ({ label: d.amenities.find((x) => x.key === k)?.label ?? k, effect: ranked.find((r) => r.key === k)?.effect }))} />
-      {edit && <p class="tl-note"><b>Note for editors:</b> update the connected sections below to see changes here.</p>}
+      {edit && <p class="tl-note">Update the Size, Amenities, Property style, Traveler demographics and Analyst notes sections to see changes here.</p>}
 
       {/* ----------------------------------------------------------- size */}
       <Section id="sec-size" eyebrow="Size" title="Property Size" intro={edit ? 'These charts show baths and sleeps for listings in this buy box’s bedroom range. Use them to pick the ideal bath and sleep count, then set the sizes in the selector underneath.' : undefined}>
