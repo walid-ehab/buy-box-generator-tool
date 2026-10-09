@@ -36,7 +36,7 @@ export function SettingEditor({ box, edit }: { box: BuyBox; edit: boolean }) {
     const rows: [string, string[], string | undefined][] = [
       ['View', viewPills, st.viewNote],
       ['Waterfront', st.waterfront === undefined ? [] : [st.waterfront ? 'Yes' : 'No'], st.waterfrontNote],
-      ['Privacy / seclusion', st.privacy ? [cap(st.privacy)] : [], st.privacyNote],
+      ['Privacy / seclusion', st.privacy ? [st.privacy === 'na' ? 'Not applicable' : cap(st.privacy)] : [], st.privacyNote],
     ];
     return (
       <div class="settingview">
@@ -76,7 +76,7 @@ export function SettingEditor({ box, edit }: { box: BuyBox; edit: boolean }) {
       </div>
       <div class="setrow">
         <span class="lbl">Privacy / seclusion</span>
-        <Choice value={st.privacy} options={[{ value: 'private', label: 'Private' }, { value: 'secluded', label: 'Secluded' }]} onChange={(v) => set({ privacy: v })} />
+        <Choice value={st.privacy} options={[{ value: 'private', label: 'Private' }, { value: 'secluded', label: 'Secluded' }, { value: 'na', label: 'Not applicable' }]} onChange={(v) => set({ privacy: v })} />
         <Text edit value={st.privacyNote ?? ''} rows={2} placeholder="Note on privacy / seclusion (optional), e.g. fenced backyard" onChange={(v) => set({ privacyNote: v })} />
       </div>
     </div>

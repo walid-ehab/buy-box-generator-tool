@@ -41,7 +41,7 @@ export interface Setting {
   mountain?: Extent;
   lake?: Extent;
   waterfront?: boolean;
-  privacy?: 'private' | 'secluded';
+  privacy?: 'private' | 'secluded' | 'na';
   viewNote?: string;
   waterfrontNote?: string;
   privacyNote?: string;
