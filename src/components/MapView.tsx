@@ -13,6 +13,7 @@ const STYLES: Record<string, { label: string; url: string; attr: string; native:
   satellite: { label: 'Satellite', url: `${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`, attr: 'Imagery © Esri', native: 19 },
 };
 
+const ord = (n: number) => { const r = Math.round(n); const t = r % 100; return r + (t >= 11 && t <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][r % 10 > 3 ? 0 : r % 10]); };
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 
 interface Props {
@@ -104,15 +105,24 @@ export function MapView(p: Props) {
       const lower = sortedRevs.filter((v) => v < l.rev).length;
       const upper = sortedRevs.filter((v) => v <= l.rev).length;
       const pct = ((lower + (upper - lower + 1) / 2) / sortedRevs.length) * 100;
+      const url = /^https?:\/\//.test(l.url) ? l.url : '';
+      // open the hover card where there is room (the map clips anything outside its edges)
+      mk.on('mouseover', () => {
+        const tt = mk.getTooltip(); if (!tt) return;
+        const pt = m.latLngToContainerPoint(mk.getLatLng()); const size = m.getSize();
+        tt.options.direction = pt.y < 230 ? 'bottom' : pt.x < 170 ? 'right' : pt.x > size.x - 170 ? 'left' : 'top';
+      });
       mk.bindTooltip(
-        `<div class="mt"><b>${esc(l.title)}</b><div class="mt-rev">${fmtMoney(l.rev)} <span>· ${pct.toFixed(0)}th percentile</span></div>` +
-        `<div class="mt-row">ADR ${l.adr != null ? fmtMoney(l.adr) : '—'} · Occ ${l.occ != null ? (l.occ * 100).toFixed(0) + '%' : '—'}</div>` +
-        `<div class="mt-row">${l.beds} bd · ${l.baths} ba · sleeps ${l.sleeps}${l.zip ? ' · ' + esc(l.zip) : ''}</div></div>`,
+        `<div class="mt"><b>${esc(l.title)}</b><div class="mt-rev">${fmtMoney(l.rev)} <span>· ${ord(pct)} percentile</span></div>` +
+        `<div class="mt-row">ADR ${l.adr != null ? fmtMoney(l.adr) : '—'} · Occupancy ${l.occ != null ? (l.occ * 100).toFixed(0) + '%' : '—'}</div>` +
+        `<div class="mt-row">${l.beds} bd · ${l.baths} ba · sleeps ${l.sleeps}${l.zip ? ' · ' + esc(l.zip) : ''}</div>` +
+        (url ? '<div class="mt-link">Click to open the listing ↗</div>' : '') + '</div>',
         { sticky: true, direction: 'top', opacity: 1, className: 'map-tip' },
       );
       mk.on('click', () => {
-        const url = /^https?:\/\//.test(l.url) ? l.url : '';
-        L.popup({ closeButton: true }).setLatLng([l.lat!, l.lng!]).setContent(`<b>${esc(l.title)}</b><br/>${fmtMoney(l.rev)}${url ? `<br/><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">Open listing ↗</a>` : ''}`).openOn(m);
+        if (drawingRef.current) return;                 // while drawing, clicks only place points
+        if (url) { window.open(url, '_blank', 'noopener,noreferrer'); return; }
+        L.popup({ closeButton: true }).setLatLng([l.lat!, l.lng!]).setContent(`<b>${esc(l.title)}</b><br/>${fmtMoney(l.rev)}<br/><span style="color:#6b7a89">No listing link in the data</span>`).openOn(m);
       });
       mk.addTo(g);
     });

@@ -282,3 +282,9 @@ body { overflow-x: clip; }
 .tl-pill.rev { background: #e3f1ec; } .tl-pill.rev b { font-weight: 800; }
 .tl-empty { color: var(--muted); font-style: italic; font-size: 13px; }
 .tl-pill.trav { background: #e9eef3; color: #1d3b52; } .tl-pill.trav b { font-weight: 800; }
+
+/* hover card: fixed comfortable width (the tooltip otherwise shrinks to whatever room is left beside the marker) */
+.leaflet-tooltip.map-tip { width: 290px; white-space: normal; padding: 10px 13px; }
+.map-tip .mt { max-width: none; width: 100%; font-size: 13px; line-height: 1.5; }
+.map-tip .mt b { font-size: 13.5px; display: block; margin-bottom: 2px; overflow-wrap: anywhere; }
+.map-tip .mt-rev { margin-bottom: 2px; } .map-tip .mt-link { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); color: var(--teal-d); font-weight: 600; font-size: 12px; }
