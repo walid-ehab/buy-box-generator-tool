@@ -298,3 +298,4 @@ body { overflow-x: clip; }
 .videofield { margin-bottom: 16px; max-width: 760px; } .videofield input { width: 100%; border: 1px solid #d9d4c7; background: #fffefa; border-radius: 9px; padding: 8px 11px; } .videofield .opt { text-transform: none; letter-spacing: 0; font-weight: 500; }
 .videobtn { margin-bottom: 18px; background: var(--brand-green); }
 a.uwlink { margin-top: 10px; text-decoration: none; }
+.uwform .lbl { margin: 6px 0 -2px; } .uwform .lbl:first-child { margin-top: 0; } .uwform .opt { text-transform: none; letter-spacing: 0; font-weight: 500; }

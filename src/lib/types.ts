@@ -48,7 +48,8 @@ export interface Setting {
   privacyNote?: string;
 }
 
-export interface UWExample { title: string; link: string; /** link to the underwriting itself (Google Sheet or Iron Bank deal) */ uwLink?: string; note: string; revenue: string; price: string }
+/** An underwritten property: its name (auto-filled from the Zillow link), the Zillow link and the link to the underwriting (Google Sheet or Iron Bank deal). */
+export interface UWExample { title: string; link: string; uwLink?: string }
 
 export interface BuyBox {
   id: string;

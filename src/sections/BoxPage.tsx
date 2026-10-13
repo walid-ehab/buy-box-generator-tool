@@ -7,6 +7,7 @@ import { CutoffChart } from '../components/CutoffChart';
 import { SettingEditor, hasSetting } from '../components/SettingEditor';
 import { Tldr } from '../components/Tldr';
 import { Projections } from '../components/Projections';
+import { addressFromZillowUrl } from '../lib/zillow';
 import { AnalystNotes, getNotes } from '../components/AnalystNotes';
 import { Callout, Card, Images, NumberField, RangeEditor, Section, Segmented, Stat, Text, fmtK, fmtMoney } from '../components/ui';
 import {
@@ -357,30 +358,40 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       )}
 
       {(
-      <Section id="sec-uw" eyebrow="Underwriting" title="Underwritten properties" intro={edit ? 'Properties already underwritten against this buy box: the link, the numbers, and why each fits.' : undefined}>
+      <Section id="sec-uw" eyebrow="Underwriting" title="Underwritten properties" intro={edit ? 'Properties already underwritten against this buy box. Paste the Zillow link and the name fills in from it.' : undefined}>
         <div class="uwgrid">
-          {box.uw.map((u, i) => (
-            <Card key={i} class="uw">
-              {edit ? (
-                <div class="uwform">
-                  <input placeholder="Property / title" value={u.title} onInput={(e) => { u.title = (e.target as HTMLInputElement).value; commit('text'); }} />
-                  <input placeholder="Zillow / listing link" value={u.link} onInput={(e) => { u.link = (e.target as HTMLInputElement).value; commit('text'); }} />
-                  <input placeholder="Link to the underwriting (Google Sheet or Iron Bank deal)" value={u.uwLink ?? ''} onInput={(e) => { u.uwLink = (e.target as HTMLInputElement).value; commit('text'); }} />
-                  <div class="row gap"><input placeholder="Projected revenue" value={u.revenue} onInput={(e) => { u.revenue = (e.target as HTMLInputElement).value; commit('text'); }} /><input placeholder="Price" value={u.price} onInput={(e) => { u.price = (e.target as HTMLInputElement).value; commit('text'); }} /></div>
-                  <textarea rows={2} placeholder="Why it fits" value={u.note} onInput={(e) => { u.note = (e.target as HTMLTextAreaElement).value; commit('text'); }} />
-                  <button class="btn danger sm" onClick={() => { box.uw.splice(i, 1); commit('text'); }}>Remove</button>
-                </div>
-              ) : (
-                <>
-                  <h4>{/^https?:\/\//.test(u.link) ? <a href={u.link} target="_blank" rel="noopener noreferrer">{u.title || 'Example'} ↗</a> : (u.title || 'Example')}</h4>
-                  <div class="uwnums">{u.revenue && <span>Revenue <b>{u.revenue}</b></span>}{u.price && <span>Price <b>{u.price}</b></span>}</div>
-                  {u.note && <p>{u.note}</p>}
-                  {/^https?:\/\//.test(u.uwLink ?? '') && <a class="btn ghost sm uwlink" href={u.uwLink} target="_blank" rel="noopener noreferrer">Open the underwriting ↗</a>}
-                </>
-              )}
-            </Card>
-          ))}
-          {edit && <button class="addcard" onClick={() => { box.uw.push({ title: '', link: '', uwLink: '', note: '', revenue: '', price: '' }); commit('text'); }}>+ Add underwritten property</button>}
+          {box.uw.map((u, i) => {
+            const isLink = (v?: string) => /^https?:\/\//i.test((v ?? '').trim());
+            const name = u.title.trim() || addressFromZillowUrl(u.link) || 'Underwritten property';
+            return (
+              <Card key={i} class="uw">
+                {edit ? (
+                  <div class="uwform">
+                    <label class="lbl">Listing name</label>
+                    <input placeholder="Filled in from the Zillow link — or type a name" value={u.title} onInput={(e) => { u.title = (e.target as HTMLInputElement).value; commit('text'); }} />
+                    <label class="lbl">Zillow link</label>
+                    <input type="url" placeholder="https://www.zillow.com/homedetails/…" value={u.link}
+                      onInput={(e) => {
+                        const next = (e.target as HTMLInputElement).value;
+                        // fill the name from the link, unless the analyst has typed their own
+                        const before = addressFromZillowUrl(u.link);
+                        if (!u.title.trim() || u.title === before) u.title = addressFromZillowUrl(next) ?? (u.title === before ? '' : u.title);
+                        u.link = next; commit('text');
+                      }} />
+                    <label class="lbl">Link to the underwriting <span class="opt">(Google Sheet or Iron Bank deal)</span></label>
+                    <input type="url" placeholder="https://…" value={u.uwLink ?? ''} onInput={(e) => { u.uwLink = (e.target as HTMLInputElement).value; commit('text'); }} />
+                    <button class="btn danger sm" onClick={() => { box.uw.splice(i, 1); commit('text'); }}>Remove</button>
+                  </div>
+                ) : (
+                  <>
+                    <h4>{isLink(u.link) ? <a href={u.link} target="_blank" rel="noopener noreferrer">{name} ↗</a> : name}</h4>
+                    {isLink(u.uwLink) && <a class="btn ghost sm uwlink" href={u.uwLink} target="_blank" rel="noopener noreferrer">Open the underwriting ↗</a>}
+                  </>
+                )}
+              </Card>
+            );
+          })}
+          {edit && <button class="addcard" onClick={() => { box.uw.push({ title: '', link: '', uwLink: '' }); commit('text'); }}>+ Add underwritten property</button>}
         </div>
         {!edit && !box.uw.length && <p class="muted empty">Nothing added yet.</p>}
       </Section>
