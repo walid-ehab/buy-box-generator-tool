@@ -7,8 +7,8 @@ import { Images, LinkField, Text } from './ui';
 export function setText(box: BuyBox, id: string, v: string) { box.text[id] = v; commit('text'); }
 
 export function FieldGroup({ box, def, edit, children, bare, custom, collapsible, headerExtra }: { box: BuyBox; def: GroupDef; edit: boolean; children?: preact.ComponentChildren; bare?: boolean; collapsible?: boolean; headerExtra?: preact.ComponentChildren; custom?: Record<string, { render: () => preact.ComponentChildren; filled: () => boolean }> }) {
-  // collapsible sections start open; a section link click (or any 'open-section' event) re-opens them
-  const [open, setOpen] = useState(true);
+  // collapsible sections start collapsed; a section link click (or any 'open-section' event) opens them
+  const [open, setOpen] = useState(!collapsible);
   useEffect(() => {
     if (!collapsible) return;
     const f = (e: Event) => { if ((e as CustomEvent).detail === `sec-${def.id}`) setOpen(true); };
