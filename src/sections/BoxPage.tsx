@@ -18,7 +18,10 @@ import type { BuyBox, Img, Listing } from '../lib/types';
 import { commit, deleteBox, setPage, store } from '../store';
 import { boxColor } from './Overview';
 
-const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+const jump = (id: string) => {
+  document.dispatchEvent(new CustomEvent('open-section', { detail: id }));
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
 
 export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit: boolean }) {
   const { spec, data, dv } = store;
@@ -131,7 +134,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
       </header>
 
       <nav class="subnav">
-        {[['sec-tldr', 'TL;DR'], ['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-travelers', 'Traveler demographics'], ['sec-regs', 'Regulations'], ['sec-notes', 'Analyst notes'], ['sec-comps', 'Comps'], ['sec-proj', 'Projections'], ['sec-uw', 'Underwritten properties']].map(([id, l]) => (
+        {[['sec-tldr', 'TL;DR'], ['sec-notes', 'Analyst notes'], ['sec-size', 'Size'], ['sec-criteria', 'Region'], ['sec-must', 'Must-haves'], ['sec-nice', 'Nice-to-haves'], ['sec-profile', 'Property style'], ['sec-travelers', 'Traveler demographics'], ['sec-regs', 'Regulations'], ['sec-comps', 'Comps'], ['sec-proj', 'Projections'], ['sec-uw', 'Underwritten properties']].map(([id, l]) => (
           <button onClick={() => jump(id)}>{l}</button>
         ))}
       </nav>
@@ -140,6 +143,13 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
         must={box.must.selected.map((k) => d.amenities.find((x) => x.key === k)?.label ?? k)}
         nice={niceSel.map((k) => ({ label: d.amenities.find((x) => x.key === k)?.label ?? k, effect: ranked.find((r) => r.key === k)?.effect }))} />
       {edit && <p class="tl-note"><b>Note:</b> Update the Size, Amenities, Property style, Traveler demographics, Analyst notes and Projections sections to see changes here.</p>}
+
+      {(
+        <section class="section" id="sec-notes">
+          <header class="section-head"><div class="eyebrow">Analyst</div><h2>Analyst notes & insights</h2></header>
+          <AnalystNotes box={box} edit={edit} />
+        </section>
+      )}
 
       {/* ----------------------------------------------------------- size */}
       <Section id="sec-size" eyebrow="Size" title="Property Size" intro={edit ? 'These charts show baths and sleeps for listings in this buy box’s bedroom range. Use them to pick the ideal bath and sleep count, then set the sizes in the selector underneath.' : undefined}>
@@ -312,7 +322,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
         ) : edit ? <Callout tone="info">The uploaded data has no review-percentage columns (headers starting with <code>pct_</code>), so there is no traveler mix chart. You can still describe the traveler profile below.</Callout> : null}
       </FieldGroup>
 
-      <FieldGroup box={box} def={REGULATIONS} edit={edit}>
+      <FieldGroup box={box} def={REGULATIONS} edit={edit} collapsible headerExtra={tier ? <span class={`tierbadge small ${tier.v}`}>{tier.emoji} {tier.label}</span> : null}>
         {edit ? (
           <div class="regtop">
             <label class="lbl">Regulation tier overall
@@ -332,12 +342,6 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
           </div>
         ) : tier ? <div class={`tierbadge ${tier.v}`}>{tier.emoji} {tier.label}</div> : null}
       </FieldGroup>
-      {(
-        <section class="section" id="sec-notes">
-          <header class="section-head"><div class="eyebrow">Analyst</div><h2>Analyst notes & insights</h2></header>
-          <AnalystNotes box={box} edit={edit} />
-        </section>
-      )}
 
       {/* ----------------------------------------------------------- projections */}
       {/* sections stay in the generated page even when empty */}
@@ -361,6 +365,7 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
                 <div class="uwform">
                   <input placeholder="Property / title" value={u.title} onInput={(e) => { u.title = (e.target as HTMLInputElement).value; commit('text'); }} />
                   <input placeholder="Zillow / listing link" value={u.link} onInput={(e) => { u.link = (e.target as HTMLInputElement).value; commit('text'); }} />
+                  <input placeholder="Link to the underwriting (Google Sheet or Iron Bank deal)" value={u.uwLink ?? ''} onInput={(e) => { u.uwLink = (e.target as HTMLInputElement).value; commit('text'); }} />
                   <div class="row gap"><input placeholder="Projected revenue" value={u.revenue} onInput={(e) => { u.revenue = (e.target as HTMLInputElement).value; commit('text'); }} /><input placeholder="Price" value={u.price} onInput={(e) => { u.price = (e.target as HTMLInputElement).value; commit('text'); }} /></div>
                   <textarea rows={2} placeholder="Why it fits" value={u.note} onInput={(e) => { u.note = (e.target as HTMLTextAreaElement).value; commit('text'); }} />
                   <button class="btn danger sm" onClick={() => { box.uw.splice(i, 1); commit('text'); }}>Remove</button>
@@ -370,11 +375,12 @@ export function BoxPage({ box, index, edit }: { box: BuyBox; index: number; edit
                   <h4>{/^https?:\/\//.test(u.link) ? <a href={u.link} target="_blank" rel="noopener noreferrer">{u.title || 'Example'} ↗</a> : (u.title || 'Example')}</h4>
                   <div class="uwnums">{u.revenue && <span>Revenue <b>{u.revenue}</b></span>}{u.price && <span>Price <b>{u.price}</b></span>}</div>
                   {u.note && <p>{u.note}</p>}
+                  {/^https?:\/\//.test(u.uwLink ?? '') && <a class="btn ghost sm uwlink" href={u.uwLink} target="_blank" rel="noopener noreferrer">Open the underwriting ↗</a>}
                 </>
               )}
             </Card>
           ))}
-          {edit && <button class="addcard" onClick={() => { box.uw.push({ title: '', link: '', note: '', revenue: '', price: '' }); commit('text'); }}>+ Add underwritten property</button>}
+          {edit && <button class="addcard" onClick={() => { box.uw.push({ title: '', link: '', uwLink: '', note: '', revenue: '', price: '' }); commit('text'); }}>+ Add underwritten property</button>}
         </div>
         {!edit && !box.uw.length && <p class="muted empty">Nothing added yet.</p>}
       </Section>

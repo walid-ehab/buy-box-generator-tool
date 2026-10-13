@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'preact/hooks';
 import type { BuyBox } from '../lib/types';
 import type { GroupDef } from '../lib/fields';
 import { commit } from '../store';
@@ -5,7 +6,15 @@ import { Images, LinkField, Text } from './ui';
 
 export function setText(box: BuyBox, id: string, v: string) { box.text[id] = v; commit('text'); }
 
-export function FieldGroup({ box, def, edit, children, bare, custom }: { box: BuyBox; def: GroupDef; edit: boolean; children?: preact.ComponentChildren; bare?: boolean; custom?: Record<string, { render: () => preact.ComponentChildren; filled: () => boolean }> }) {
+export function FieldGroup({ box, def, edit, children, bare, custom, collapsible, headerExtra }: { box: BuyBox; def: GroupDef; edit: boolean; children?: preact.ComponentChildren; bare?: boolean; collapsible?: boolean; headerExtra?: preact.ComponentChildren; custom?: Record<string, { render: () => preact.ComponentChildren; filled: () => boolean }> }) {
+  // collapsible sections start open; a section link click (or any 'open-section' event) re-opens them
+  const [open, setOpen] = useState(true);
+  useEffect(() => {
+    if (!collapsible) return;
+    const f = (e: Event) => { if ((e as CustomEvent).detail === `sec-${def.id}`) setOpen(true); };
+    document.addEventListener('open-section', f);
+    return () => document.removeEventListener('open-section', f);
+  }, [collapsible, def.id]);
   const hasText = (ids: string[]) => ids.some((id) => (box.text[id] ?? '').trim());
   const hasImg = (ids: string[]) => ids.some((id) => (box.images[id] ?? []).length);
   const allFieldIds = [...def.fields, ...(def.subgroups?.flatMap((s) => s.fields) ?? [])].map((f) => f.id);
@@ -62,9 +71,20 @@ export function FieldGroup({ box, def, edit, children, bare, custom }: { box: Bu
   );
   if (empty && bare) return emptyMsg;
   return bare ? body : (
-    <section class="section" id={`sec-${def.id}`}>
-      <header class="section-head"><div class="eyebrow">{def.eyebrow}</div><h2>{def.title}</h2>{def.intro && <p class="lede">{def.intro}</p>}</header>
-      {empty ? emptyMsg : body}
+    <section class={`section ${collapsible ? 'collapsible' : ''} ${collapsible && !open ? 'closed' : ''}`} id={`sec-${def.id}`}>
+      <header class="section-head">
+        <div class="eyebrow">{def.eyebrow}</div>
+        {collapsible ? (
+          <h2 class="collapse-h">
+            <button type="button" class="collapse-toggle" aria-expanded={open} onClick={() => setOpen(!open)}>
+              <span class="chev" aria-hidden="true">{open ? '▾' : '▸'}</span>{def.title}
+            </button>
+            {headerExtra}
+          </h2>
+        ) : <h2>{def.title}</h2>}
+        {def.intro && open && <p class="lede">{def.intro}</p>}
+      </header>
+      {open && (empty ? emptyMsg : body)}
     </section>
   );
 }

@@ -17,7 +17,7 @@ export function getNotes(box: BuyBox): Note[] {
   return box.notes;
 }
 
-export const hasNotes = (box: BuyBox) => getNotes(box).some((n) => n.text.trim() || n.images.length);
+export const hasNotes = (box: BuyBox) => getNotes(box).some((n) => n.text.trim() || n.images.length) || !!(box.text.video ?? '').trim();
 
 function NoteBox({ value, onChange, onEnter, autoFocus }: { value: string; onChange: (v: string) => void; onEnter: () => void; autoFocus: boolean }) {
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -35,45 +35,65 @@ const ids = new WeakMap<Note, number>();
 let nextId = 1;
 const keyOf = (n: Note) => { if (!ids.has(n)) ids.set(n, nextId++); return ids.get(n)!; };
 
+const isUrl = (v: string) => /^https?:\/\//i.test(v.trim());
+
 export function AnalystNotes({ box, edit }: { box: BuyBox; edit: boolean }) {
   const notes = getNotes(box);
+  // the section opens ready to type: always keep at least one (blank) note while editing
+  if (edit && notes.length === 0) notes.push({ text: '', images: [] });
+  const video = (box.text.video ?? '').trim();
   const add = (at = notes.length) => { const n: Note = { text: '', images: [] }; notes.splice(at, 0, n); focusNext = n; commit('text'); };
   const move = (i: number, d: number) => { const j = i + d; if (j < 0 || j >= notes.length) return; [notes[i], notes[j]] = [notes[j], notes[i]]; commit('text'); };
 
   if (!edit) {
     const shown = notes.filter((n) => n.text.trim() || n.images.length);
-    if (!shown.length) return <p class="muted empty">Nothing added yet.</p>;
+    if (!shown.length && !video) return <p class="muted empty">Nothing added yet.</p>;
     return (
-      <ul class="notelist">
-        {shown.map((n, i) => (
-          <li key={keyOf(n)}>
-            <Text edit={false} value={n.text} onChange={() => {}} />
-            <Images edit={false} compact images={n.images} onChange={() => {}} />
-          </li>
-        ))}
-      </ul>
+      <>
+        {video && (isUrl(video)
+          ? <a class="btn videobtn" href={video} target="_blank" rel="noopener noreferrer">▶ Watch the video overview ↗</a>
+          : <p class="muted">Video overview: {video}</p>)}
+        {shown.length > 0 && (
+          <ul class="notelist">
+            {shown.map((n) => (
+              <li key={keyOf(n)}>
+                <Text edit={false} value={n.text} onChange={() => {}} />
+                <Images edit={false} compact images={n.images} onChange={() => {}} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
     );
   }
   return (
-    <div class="noteed">
-      {notes.map((n, i) => {
-        const focus = focusNext === n; if (focus) focusNext = null;
-        return (
-          <div class="noterow" key={keyOf(n)}>
-            <span class="bullet" aria-hidden="true">•</span>
-            <div class="notebody">
-              <NoteBox value={n.text} autoFocus={focus} onChange={(v) => { n.text = v; commit('text'); }} onEnter={() => add(i + 1)} />
-              <Images compact edit images={n.images} onChange={(v) => { n.images = v; commit('text'); }} />
+    <>
+      <div class="videofield">
+        <label class="lbl" for={`video-${box.id}`}>Video overview <span class="opt">(optional)</span></label>
+        <input id={`video-${box.id}`} type="url" value={box.text.video ?? ''} placeholder="Paste a Loom link, e.g. https://www.loom.com/share/…"
+          onInput={(e) => { box.text.video = (e.target as HTMLInputElement).value; commit('text'); }} />
+        <div class="hint">A short walkthrough recorded by the analyst. Readers get a “Watch the video overview” button.</div>
+      </div>
+      <div class="noteed">
+        {notes.map((n, i) => {
+          const focus = focusNext === n; if (focus) focusNext = null;
+          return (
+            <div class="noterow" key={keyOf(n)}>
+              <span class="bullet" aria-hidden="true">•</span>
+              <div class="notebody">
+                <NoteBox value={n.text} autoFocus={focus} onChange={(v) => { n.text = v; commit('text'); }} onEnter={() => add(i + 1)} />
+                <Images compact edit images={n.images} onChange={(v) => { n.images = v; commit('text'); }} />
+              </div>
+              <div class="notectl">
+                <button type="button" title="Move up" disabled={i === 0} onClick={() => move(i, -1)}>▲</button>
+                <button type="button" title="Move down" disabled={i === notes.length - 1} onClick={() => move(i, 1)}>▼</button>
+                <button type="button" title="Delete this note" class="del" onClick={() => { notes.splice(i, 1); commit('text'); }}>✕</button>
+              </div>
             </div>
-            <div class="notectl">
-              <button type="button" title="Move up" disabled={i === 0} onClick={() => move(i, -1)}>▲</button>
-              <button type="button" title="Move down" disabled={i === notes.length - 1} onClick={() => move(i, 1)}>▼</button>
-              <button type="button" title="Delete this note" class="del" onClick={() => { notes.splice(i, 1); commit('text'); }}>✕</button>
-            </div>
-          </div>
-        );
-      })}
-      <button type="button" class="addcard slim" onClick={() => add()}>+ Add note</button>
-    </div>
+          );
+        })}
+        <button type="button" class="addcard slim" onClick={() => add()}>+ Add note</button>
+      </div>
+    </>
   );
 }

@@ -48,7 +48,7 @@ export interface Setting {
   privacyNote?: string;
 }
 
-export interface UWExample { title: string; link: string; note: string; revenue: string; price: string }
+export interface UWExample { title: string; link: string; /** link to the underwriting itself (Google Sheet or Iron Bank deal) */ uwLink?: string; note: string; revenue: string; price: string }
 
 export interface BuyBox {
   id: string;

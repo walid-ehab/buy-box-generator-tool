@@ -74,19 +74,19 @@ export const TRAVELERS: GroupDef = {
 
 export const COMPS: GroupDef[] = [
   {
-    id: 'design', eyebrow: 'Design', title: 'Design comp set',
-    fields: [
-      { id: 'designNotes', label: 'Design style of top-performing comps', rows: 3 },
-      { id: 'designLink', label: 'Alexandria design comp set', link: true },
-    ],
-    images: [{ id: 'designImages', label: 'Design examples' }],
-  },
-  {
     id: 'revcomp', eyebrow: 'Revenue', title: 'Revenue comp set',
     fields: [
       { id: 'revCompNotes', label: 'Revenue comps for this buy box', rows: 3 },
       { id: 'revCompLink', label: 'Alexandria revenue comp set', link: true },
     ],
     images: [{ id: 'revCompImages', label: 'Revenue comp screenshots' }],
+  },
+  {
+    id: 'design', eyebrow: 'Design', title: 'Design comp set',
+    fields: [
+      { id: 'designNotes', label: 'Design style of top-performing comps', rows: 3 },
+      { id: 'designLink', label: 'Alexandria design comp set', link: true },
+    ],
+    images: [{ id: 'designImages', label: 'Design examples' }],
   },
 ];
